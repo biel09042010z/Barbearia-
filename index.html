@@ -314,13 +314,13 @@
   }
 
   /* ---------- SECTION SHELL ---------- */
-  section{ position:relative; z-index:1; padding: 130px 0; }
+  section{ position:relative; z-index:1; padding: 44px 0; }
   .section-head{
     display:flex;
     align-items:flex-end;
     justify-content:space-between;
     gap: 2rem;
-    margin-bottom: 4rem;
+    margin-bottom: 2.4rem;
     flex-wrap:wrap;
   }
   .section-eyebrow{
@@ -353,9 +353,10 @@
   .sobre{ background: var(--bg-alt); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .sobre-grid{
     display:grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 4rem;
     align-items:center;
+    max-width: 720px;
   }
   .sobre-photo{
     aspect-ratio: 4/5;
@@ -580,7 +581,7 @@
   /* ---------- CTA FINAL ---------- */
   .cta-final{
     text-align:center;
-    padding: 150px 0;
+    padding: 80px 0;
   }
   .cta-final .section-eyebrow{ display:block; margin: 0 auto 1.2rem; width:fit-content; }
   .cta-final h2{
@@ -632,7 +633,7 @@
     .galeria-grid{ grid-template-columns: repeat(2, 1fr); grid-auto-rows: 160px; }
     .g-item:nth-child(1){ grid-column: span 2; grid-row: span 1; }
     .g-item:nth-child(4){ grid-row: span 1; }
-    section{ padding: 90px 0; }
+    section{ padding: 52px 0; }
     .hero-meta{ display:none; }
   }
   @media (max-width: 560px){
@@ -678,7 +679,6 @@
   <!-- SOBRE -->
   <section class="sobre" id="sobre">
     <div class="wrap sobre-grid">
-      <div class="sobre-photo reveal"><span class="mark">SN</span></div>
       <div class="sobre-text reveal">
         <span class="section-eyebrow">Sobre a barbearia</span>
         <h2 class="section-title">Tradição de barbearia, <em>padrão de estúdio.</em></h2>
@@ -694,7 +694,7 @@
       <div class="section-head reveal">
         <div>
           <span class="section-eyebrow">Serviços &amp; preços</span>
-          <h2 class="section-title">A ficha do seu <em>próximo horário.</em></h2>
+          <h2 class="section-title">Nossos <em>serviços.</em></h2>
         </div>
         <p class="section-note">Preços fixos, sem surpresa. Escolha o serviço e garanta seu horário.</p>
       </div>
@@ -754,17 +754,7 @@
         <div class="g-item" data-label="Combo completo"><img src="images/foto-5.jpg" alt="Combo completo" onerror="this.remove()"></div>
         <div class="g-item" data-label="Acabamento navalha"><img src="images/foto-6.jpg" alt="Acabamento navalha" onerror="this.remove()"></div>
       </div>
-      <p style="margin-top:1.4rem; font-family:var(--mono); font-size:0.72rem; color:var(--ink-faint); letter-spacing:0.04em;">
-        Para trocar por fotos reais: crie uma pasta <strong style="color:var(--ink-dim);">images/</strong> ao lado do index.html e salve as fotos como <strong style="color:var(--ink-dim);">foto-1.jpg</strong> até <strong style="color:var(--ink-dim);">foto-6.jpg</strong> (ou me envie as fotos aqui que eu já monto pra você).
-      </p>
-    </div>
-  </section>
 
-  <!-- DEPOIMENTO -->
-  <section class="strip">
-    <div class="wrap">
-      <p class="strip-quote">"Entrei pra um corte e saí com barbeiro fixo. Ambiente, pontualidade e o resultado — tudo no nível certo."</p>
-      <span class="strip-author">— Cliente Seu Nome</span>
     </div>
   </section>
 
