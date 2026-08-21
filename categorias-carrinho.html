@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Categorias e Carrinho</title>
+<style>
+:root{--bg:#faf8f3;--card:#fff;--text:#25221d;--muted:#746d62;--border:#e5dfd4;--gold:#b88a24;--green:#466b55;--brick:#a4513e}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea,select{font:inherit}.topbar{height:64px;padding:0 20px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.brand{font-size:1.25rem;font-weight:800}.brand span{color:var(--gold)}
+.header-actions{display:flex;gap:8px}.btn,.cart-button{border:1px solid var(--border);background:#fff;border-radius:9px;padding:9px 13px;cursor:pointer}.cart-button{display:flex;align-items:center;gap:6px;background:#25221d;color:#fff}
+.hero{text-align:center;padding:50px 20px 25px}.hero h1{margin:0 0 8px;font-size:2rem}.hero p{margin:0;color:var(--muted)}
+.section{padding:25px 20px 55px;max-width:1050px;margin:auto}.section-title{font-size:1.45rem;text-align:center;margin:0 0 20px}
+.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:14px}
+.category-card{border:1px solid var(--border);background:var(--card);border-radius:15px;min-height:145px;padding:20px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:.2s}
+.category-card:hover{transform:translateY(-2px);box-shadow:0 7px 20px #00000010}.category-card-icon{width:54px;height:54px;border-radius:50%;display:grid;place-items:center}
+.t-forest{background:#e4eee7;color:var(--green)}.t-gold{background:#f6edcf;color:var(--gold)}.t-brick{background:#f2e0da;color:var(--brick)}
+.category-card-name{font-weight:700}
+.products{max-width:1050px;margin:auto;padding:30px 20px 60px}.products-head{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;margin-bottom:20px}
+.search{padding:10px 12px;border:1px solid var(--border);border-radius:9px;background:#fff;min-width:230px}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:15px}.product-card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}.prod-visual{height:150px;background:#f0ece4;display:grid;place-items:center;position:relative}.prod-visual-icon{width:55px;height:55px}.prod-container-body{display:grid;place-items:center;width:85px;height:85px;background:#eee7d8;border-radius:14px}.prod-container-lid{position:absolute;width:75px;height:13px;border-radius:6px;top:31px;opacity:.7}.prod-floor-shadow{position:absolute;width:95px;height:15px;border-radius:50%;background:#00000012;bottom:27px}.product-info{padding:13px}.product-info h3{font-size:1rem;margin:0 0 8px}.price-now{font-weight:800;font-size:1.1rem}.product-actions{display:flex;gap:7px;margin-top:12px}.btn-primary{background:#25221d;color:#fff;border:0;border-radius:8px;padding:9px 12px;cursor:pointer;flex:1}.badge-pill{position:absolute;top:9px;left:9px;background:#fff;padding:4px 8px;border-radius:30px;font-size:.7rem;font-weight:700}.badge-esgotado{color:#a33}
+.cart-page{max-width:1050px;margin:auto;padding:30px 20px 70px}.cart-layout{display:grid;grid-template-columns:1.5fr 1fr;gap:20px}.cart-items,.cart-summary{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px}.cart-item{padding:12px 0;border-bottom:1px solid var(--border)}.cart-summary h3{margin-top:0}.summary-row{display:flex;justify-content:space-between;padding:8px 0}.summary-total{font-size:1.2rem;font-weight:800;border-top:1px solid var(--border);margin-top:8px;padding-top:15px}.coupon-row{display:flex;gap:8px;margin-bottom:8px}.coupon-row input,.filter-block input,.filter-block textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px}.coupon-row input{flex:1}.link-more{border:0;background:none;cursor:pointer;padding:15px 0;color:var(--gold)}
+.payment-radio-group{display:flex;flex-direction:column;gap:8px;margin-top:8px}.payment-radio-option{padding:9px;border:1px solid var(--border);border-radius:8px;cursor:pointer}.payment-radio-option input{margin-right:7px}
+footer{text-align:center;padding:25px;border-top:1px solid var(--border)}footer button{border:0;background:none;color:var(--muted);cursor:pointer}
+@media(max-width:700px){.cart-layout{grid-template-columns:1fr}.topbar{padding:0 12px}.brand{font-size:1rem}.header-actions .btn{display:none}}
+</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script crossorigin src="https://unpkg.com/lucide-react@0.468.0/dist/umd/lucide-react.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {
+  ShoppingCart, Package, LayoutGrid, UtensilsCrossed, GlassWater, Snowflake,
+  Coffee, Baby, Gift, Percent, ChevronRight, ChevronLeft, Filter, X, Plus,
+  Minus, Trash2, MessageCircle, Check
+} = lucideReact;
+
+// ============================================================
+// DEPENDÊNCIAS (adicione ao seu projeto se ainda não tiver)
+// ============================================================
+// npm install lucide-react
+// Imports necessários no topo do seu App.jsx:
+//
+// import { useState, useEffect, useRef, useMemo } from "react";
+// import {
+//   ShoppingCart, Package, LayoutGrid, UtensilsCrossed, GlassWater,
+//   Snowflake, Coffee, Baby, Gift, Percent, ChevronRight, ChevronLeft,
+//   Filter, X, Plus, Minus, Trash2, MessageCircle, Check
+// } from "lucide-react";
+
+// ============================================================
+// CONFIGURAÇÃO (ajuste para o seu projeto)
+// ============================================================
+const WHATSAPP_NUMBER = "5589981225667"; // ← troque pelo seu número
+
+const waLink = (msg) =>
+  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+
+const formatPrice = (v) =>
+  `R$ ${v.toFixed(2).replace(".", ",")}`;
+
+// ============================================================
+// CATEGORIAS — edite conforme seu nicho
+// ============================================================
+// ============================================================
+// CATEGORIAS — EDITE SOMENTE ESTA LISTA
+//
+// Para criar, remover ou alterar categorias, edite os itens abaixo.
+// - id: identificador único, sem espaços ou acentos
+// - name: nome que aparecerá no site
+// - icon: ícone da categoria
+// - tint: estilo visual (t-forest, t-gold ou t-brick)
+// - visible: true = aparece | false = fica oculta
+//
+// Exemplos de ícones disponíveis:
+// Package, LayoutGrid, UtensilsCrossed, GlassWater, Snowflake
+// ============================================================
+const CATEGORIES = [
+  { id: "potes",       name: "Potes",          icon: Package,          tint: "t-forest", visible: true },
+  { id: "organizacao", name: "Organização",    icon: LayoutGrid,       tint: "t-gold",   visible: true },
+  { id: "cozinha",     name: "Cozinha",        icon: UtensilsCrossed,  tint: "t-brick",  visible: true },
+  { id: "garrafas",    name: "Garrafas",       icon: GlassWater,       tint: "t-forest", visible: true },
+  { id: "conservacao", name: "Conservação",    icon: Snowflake,        tint: "t-gold",   visible: true },
+];
+
+// ============================================================
+// CONFIGURAÇÃO FÁCIL DAS CATEGORIAS
+//
+// Você pode substituir completamente a lista acima pelos seus
+// próprios nomes. Exemplo:
+//
+// const CATEGORIES = [
+//   { id: "bebidas", name: "Bebidas", icon: GlassWater, tint: "t-forest", visible: true },
+//   { id: "lanches", name: "Lanches", icon: UtensilsCrossed, tint: "t-gold", visible: true },
+//   { id: "combos",  name: "Combos",  icon: Package, tint: "t-brick", visible: true },
+// ];
+// ============================================================
+
+// ============================================================
+// VISUAL DO PRODUTO (imagem ou ícone fallback)
+// ============================================================
+function ProductVisual({ product, className = "" }) {
+  const cat = CATEGORIES.find((c) => c.id === product.category);
+  const Icon = cat?.icon || Package;
+  const outOfStock = product.stock <= 0;
+  const hasPhoto = !!product.image;
+  return (
+    <div
+      className={`prod-visual ${hasPhoto ? "prod-visual-photo" : ""} ${outOfStock ? "prod-visual-out" : ""} ${className}`}
+      style={hasPhoto ? { backgroundImage: `url(${product.image})` } : undefined}
+    >
+      {!hasPhoto && (
+        <>
+          <div className="prod-floor-shadow" />
+          <div className={`prod-container-lid ${cat?.tint || "t-forest"}`} />
+          <div className="prod-container-body">
+            <Icon className="prod-visual-icon" strokeWidth={1.2} />
+          </div>
+        </>
+      )}
+      {outOfStock ? (
+        <span className="badge-pill badge-esgotado">Esgotado</span>
+      ) : product.badge ? (
+        <span className={`badge-pill badge-${product.badge}`}>
+          {product.badge === "mais-vendido"
+            ? "Mais vendido"
+            : product.badge === "oferta"
+            ? "Oferta"
+            : "Novo"}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+// ============================================================
+// CARD DE PRODUTO
+// ============================================================
+function ProductCard({ product, onView, onAddToCart, compact }) {
+  const discount = product.oldPrice
+    ? Math.round((1 - product.price / product.oldPrice) * 100)
+    : null;
+  const outOfStock = product.stock <= 0;
+  const handleAdd = (e) => { e.stopPropagation(); onAddToCart(product, 1); };
+  return (
+    <div
+      className={`product-card ${compact ? "product-card-compact" : ""} ${outOfStock ? "product-card-out" : ""}`}
+      onClick={() => onView(product.id)}
+      role="button"
+      tabIndex={0}
+    >
+      <ProductVisual product={product} />
+      <div className="product-card-body">
+        {product.oldPrice && discount && (
+          <span className="price-discount price-discount-overlay">-{discount}%</span>
+        )}
+        <h3 className="prod-title">{product.name}</h3>
+        <div className="price-row">
+          {product.oldPrice && (
+            <span className="price-old">{formatPrice(product.oldPrice)}</span>
+          )}
+          <span className="price-now">{formatPrice(product.price)}</span>
+        </div>
+        {outOfStock ? (
+          <button
+            className="btn btn-sm btn-disabled btn-card-cta"
+            disabled
+            onClick={(e) => e.stopPropagation()}
+          >
+            Esgotado
+          </button>
+        ) : (
+          <button className="btn btn-primary btn-sm btn-card-cta" onClick={handleAdd}>
+            <ShoppingCart className="w-4 h-4" /> Adicionar ao carrinho
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SEÇÃO DE CATEGORIAS (grid na home)
+// ============================================================
+function CategorySection({ goTo, setCategoryFilter, categoryImages = {}, hiddenCategories = [] }) {
+  return (
+    <section className="section section-alt">
+      <h2 className="section-title">Encontre o que você precisa</h2>
+      <div className="category-grid">
+        {CATEGORIES.filter((c) => !hiddenCategories.includes(c.id)).map((c) => {
+          const img = categoryImages[c.id];
+          return (
+            <button
+              key={c.id}
+              className={`category-card ${img ? "category-card-photo" : ""}`}
+              style={img ? { backgroundImage: `url(${img})` } : undefined}
+              onClick={() => { setCategoryFilter(c.id); goTo("busca"); }}
+            >
+              {img && <div className="category-card-scrim" />}
+              {!img && (
+                <div className={`category-icon ${c.tint}`}>
+                  <c.icon className="w-7 h-7" />
+                </div>
+              )}
+              <span>{c.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// ============================================================
+// LINHA DE PRODUTOS (grid ou scroll horizontal)
+// ============================================================
+function ProductRow({ title, products, goTo, addToCart, viewProduct, carousel }) {
+  return (
+    <section className="section">
+      <div className="section-head">
+        <h2 className="section-title" style={{ marginBottom: 0 }}>{title}</h2>
+        <button className="link-more" onClick={() => goTo("busca")}>
+          Ver tudo <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+      <div className={carousel ? "product-scroll" : "product-grid"}>
+        {products.map((p) => (
+          <ProductCard
+            key={p.id}
+            product={p}
+            onView={viewProduct}
+            onAddToCart={addToCart}
+            compact={carousel}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ============================================================
+// PÁGINA DE BUSCA / CATÁLOGO
+// ============================================================
+function BuscaPage({ products, initialQuery, initialCategory, goTo, addToCart, viewProduct }) {
+  const [query, setQuery] = useState(initialQuery || "");
+  const [category, setCategory] = useState(initialCategory || "todas");
+  const [sort, setSort] = useState("relevancia");
+  const [maxPrice, setMaxPrice] = useState(200);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const filtered = useMemo(() => {
+    let list = products.filter((p) =>
+      p.name.toLowerCase().includes(query.toLowerCase())
+    );
+    if (category !== "todas") list = list.filter((p) => p.category === category);
+    list = list.filter((p) => p.price <= maxPrice);
+    if (sort === "menor-preco")   list = [...list].sort((a, b) => a.price - b.price);
+    else if (sort === "maior-preco")  list = [...list].sort((a, b) => b.price - a.price);
+    else if (sort === "avaliacao")    list = [...list].sort((a, b) => b.rating - a.rating);
+    else if (sort === "novidades")    list = [...list].sort((a, b) => (b.badge === "novo") - (a.badge === "novo"));
+    else if (sort === "mais-vendidos") list = [...list].sort((a, b) => (b.badge === "mais-vendido") - (a.badge === "mais-vendido"));
+    return list;
+  }, [products, query, category, sort, maxPrice]);
+
+  return (
+    <div className="page-shell">
+      <h1 className="page-title">Produtos</h1>
+      <div className="busca-layout">
+        <aside className={`filters-panel ${filtersOpen ? "filters-open" : ""}`}>
+          <div className="filters-head only-mobile">
+            <h3>Filtros</h3>
+            <button className="icon-btn" onClick={() => setFiltersOpen(false)}>
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="filter-block">
+            <label>Buscar</label>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="ex: pote"
+            />
+          </div>
+          <div className="filter-block">
+            <label>Categoria</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="todas">Todas as categorias</option>
+              {CATEGORIES.filter((c) => c.id !== "ofertas").map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="filter-block">
+            <label>Preço até {formatPrice(maxPrice)}</label>
+            <input
+              type="range"
+              min="20"
+              max="200"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+            />
+          </div>
+          <div className="filter-block">
+            <label>Ordenar por</label>
+            <select value={sort} onChange={(e) => setSort(e.target.value)}>
+              <option value="relevancia">Relevância</option>
+              <option value="mais-vendidos">Mais vendidos</option>
+              <option value="novidades">Novidades</option>
+              <option value="menor-preco">Menor preço</option>
+              <option value="maior-preco">Maior preço</option>
+              <option value="avaliacao">Melhor avaliação</option>
+            </select>
+          </div>
+        </aside>
+
+        <div className="busca-results">
+          <div className="busca-toolbar">
+            <span className="txt-muted">
+              {filtered.length} produto{filtered.length !== 1 ? "s" : ""} encontrado{filtered.length !== 1 ? "s" : ""}
+            </span>
+            <button
+              className="btn btn-outline btn-sm only-mobile"
+              onClick={() => setFiltersOpen(true)}
+            >
+              <Filter className="w-4 h-4" /> Filtros
+            </button>
+          </div>
+          {filtered.length === 0 ? (
+            <div className="empty-state">
+              Nenhum produto encontrado. Tente ajustar os filtros.
+            </div>
+          ) : (
+            <div className="product-grid">
+              {filtered.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  onView={viewProduct}
+                  onAddToCart={addToCart}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// CARRINHO + CHECKOUT (envia pedido via WhatsApp)
+// ============================================================
+function CartPage({ cart, products, updateQty, removeItem, goTo, clearCart, coupons = [], addOrder }) {
+  const [coupon, setCoupon] = useState("");
+  const [couponMsg, setCouponMsg] = useState(null);
+  const [discountPct, setDiscountPct] = useState(0);
+  const [appliedCode, setAppliedCode] = useState(null);
+  const [obs, setObs] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [payment, setPayment] = useState(null);
+  const [paymentError, setPaymentError] = useState("");
+
+  const PAYMENT_OPTIONS = [
+    { id: "pix",      label: "Pix" },
+    { id: "dinheiro", label: "Dinheiro" },
+    { id: "cartao",   label: "Cartão" },
+  ];
+
+  const items = cart
+    .map((ci) => ({ ...ci, product: products.find((p) => p.id === ci.productId) }))
+    .filter((i) => i.product);
+
+  const subtotal    = items.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const discountVal = subtotal * discountPct;
+  const total       = subtotal - discountVal;
+
+  const isExpired = (validade) => {
+    if (!validade) return false;
+    const d = new Date(validade + "T23:59:59");
+    return !isNaN(d.getTime()) && d < new Date();
+  };
+
+  const applyCoupon = () => {
+    const code = coupon.trim().toUpperCase();
+    const found = coupons.find((c) => c.code.toUpperCase() === code && c.active !== false);
+    if (!found) {
+      setDiscountPct(0);
+      setAppliedCode(null);
+      setCouponMsg({ ok: false, text: "Cupom inválido." });
+      return;
+    }
+    if (isExpired(found.validade)) {
+      setDiscountPct(0);
+      setAppliedCode(null);
+      setCouponMsg({ ok: false, text: "Esse cupom já expirou." });
+      return;
+    }
+    setDiscountPct(found.discount / 100);
+    setAppliedCode(found.code);
+    setCouponMsg({ ok: true, text: `Cupom aplicado: ${found.discount}% de desconto.` });
+  };
+
+  const productsBlock = items
+    .map((i) => `• ${i.product.name}\nQtd: ${i.qty}\nValor: ${formatPrice(i.product.price)}`)
+    .join("\n\n");
+
+  const waFinishMsg =
+    `Olá! Gostaria de fazer o seguinte pedido:\n\n` +
+    `🛍️ Produtos:\n\n` +
+    `${productsBlock}\n\n` +
+    `-------------------------\n` +
+    (discountVal > 0 ? `Desconto: -${formatPrice(discountVal)}\n` : "") +
+    `Total: ${formatPrice(total)}\n\n` +
+    `Nome: ${customerName.trim()}\n` +
+    `Forma de pagamento: ${PAYMENT_OPTIONS.find((p) => p.id === payment)?.label || ""}\n` +
+    `Endereço:\n` +
+    (obs.trim() ? `Observações: ${obs.trim()}\n\n` : "\n") +
+    `Aguardo seu atendimento. Obrigado!`;
+
+  const sendOrder = () => {
+    const nameOk = customerName.trim().split(/\s+/).filter(Boolean).length >= 2;
+    if (!nameOk) {
+      setNameError("Escreva seu nome completo (nome e sobrenome).");
+      return;
+    }
+    if (!payment) {
+      setPaymentError("Escolha uma forma de pagamento.");
+      return;
+    }
+    setNameError("");
+    setPaymentError("");
+    if (addOrder) {
+      addOrder({
+        id: "#" + Date.now().toString().slice(-6),
+        cliente: customerName.trim(),
+        payment: PAYMENT_OPTIONS.find((p) => p.id === payment)?.label,
+        items: items.map((i) => ({ name: i.product.name, qty: i.qty, price: i.product.price })),
+        subtotal,
+        discount: discountVal,
+        total,
+        coupon: appliedCode,
+        obs: obs.trim(),
+        status: "Novo",
+        date: new Date().toISOString(),
+      });
+    }
+    window.open(waLink(waFinishMsg), "_blank", "noopener,noreferrer");
+    clearCart();
+  };
+
+  if (items.length === 0) {
+    return (
+      <div className="page-shell">
+        <h1 className="page-title">Seu carrinho</h1>
+        <div className="empty-state">
+          <ShoppingCart className="w-8 h-8" style={{ marginBottom: "0.5rem" }} />
+          <p>Seu carrinho está vazio.</p>
+          <button
+            className="btn btn-primary"
+            onClick={() => goTo("busca")}
+            style={{ marginTop: "1rem" }}
+          >
+            Continuar comprando
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-shell">
+      <h1 className="page-title">Seu carrinho</h1>
+      <div className="cart-layout">
+
+        {/* ── Lista de itens ── */}
+        <div className="cart-items">
+          {items.map((i) => (
+            <div
+              key={i.productId + i.color}
+              className="cart-item"
+              style={{
+                display: "flex", flexDirection: "column", gap: "0.75rem",
+                padding: "1rem", border: "1px solid #e5e7eb",
+                borderRadius: "0.75rem", marginBottom: "0.75rem",
+              }}
+            >
+              <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                <ProductVisual product={i.product} className="cart-item-visual" />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, marginBottom: "0.2rem" }}>{i.product.name}</div>
+                  <div className="price-now">{formatPrice(i.product.price)}</div>
+                </div>
+                <button
+                  className="icon-btn"
+                  onClick={() => removeItem(i.productId, i.color)}
+                  aria-label="Remover"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: "0.75rem",
+                  border: "1px solid #e5e7eb", borderRadius: "2rem", padding: "0.3rem 0.75rem",
+                }}>
+                  <button
+                    style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: "0.2rem" }}
+                    onClick={() => updateQty(i.productId, i.color, Math.max(1, i.qty - 1))}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span style={{ minWidth: "1.5rem", textAlign: "center", fontWeight: 600 }}>{i.qty}</span>
+                  <button
+                    style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: "0.2rem" }}
+                    onClick={() => updateQty(i.productId, i.color, i.qty + 1)}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <span style={{ fontWeight: 700, fontSize: "1rem" }}>
+                  {formatPrice(i.product.price * i.qty)}
+                </span>
+              </div>
+            </div>
+          ))}
+          <button className="link-more" onClick={() => goTo("busca")}>
+            <ChevronLeft className="w-4 h-4" /> Continuar comprando
+          </button>
+        </div>
+
+        {/* ── Resumo / checkout ── */}
+        <div className="cart-summary">
+          <h3>Resumo do pedido</h3>
+
+          {/* Cupom */}
+          <div className="coupon-row">
+            <input
+              placeholder="Possui cupom de desconto?"
+              value={coupon}
+              onChange={(e) => setCoupon(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") applyCoupon(); }}
+            />
+            <button className="btn btn-outline btn-sm" type="button" onClick={applyCoupon}>
+              Aplicar
+            </button>
+          </div>
+          {couponMsg && (
+            <div className={couponMsg.ok ? "coupon-ok" : "coupon-err"}>{couponMsg.text}</div>
+          )}
+
+          {/* Totais */}
+          <div className="summary-row">
+            <span>Subtotal</span><span>{formatPrice(subtotal)}</span>
+          </div>
+          {discountVal > 0 && (
+            <div className="summary-row summary-discount">
+              <span>Desconto</span><span>-{formatPrice(discountVal)}</span>
+            </div>
+          )}
+          <div className="summary-row summary-total">
+            <span>Total</span><span>{formatPrice(total)}</span>
+          </div>
+
+          {/* Nome */}
+          <div className="filter-block" style={{ marginTop: "0.75rem" }}>
+            <label>Nome completo</label>
+            <input
+              placeholder="Digite seu nome completo"
+              value={customerName}
+              onChange={(e) => { setCustomerName(e.target.value); setNameError(""); }}
+            />
+            {nameError && <span className="coupon-err">{nameError}</span>}
+          </div>
+
+          {/* Pagamento */}
+          <div className="filter-block" style={{ marginTop: "0.75rem" }}>
+            <label>Forma de pagamento</label>
+            <div className="payment-radio-group">
+              {PAYMENT_OPTIONS.map((p) => (
+                <label
+                  key={p.id}
+                  className={`payment-radio-option ${payment === p.id ? "payment-radio-active" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name="payment-method"
+                    checked={payment === p.id}
+                    onChange={() => { setPayment(p.id); setPaymentError(""); }}
+                  />
+                  <span className="payment-radio-dot" />
+                  {p.label}
+                </label>
+              ))}
+            </div>
+            {paymentError && <span className="coupon-err">{paymentError}</span>}
+          </div>
+
+          {/* Observações */}
+          <div className="filter-block" style={{ marginTop: "0.5rem" }}>
+            <label>Observações (opcional)</label>
+            <textarea
+              rows={3}
+              placeholder="Ex: quero retirar na loja, entregar amanhã..."
+              value={obs}
+              onChange={(e) => setObs(e.target.value)}
+            />
+          </div>
+
+          {/* CTA */}
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ width: "100%", justifyContent: "center", marginTop: "0.5rem" }}
+            onClick={sendOrder}
+          >
+            <MessageCircle className="w-4 h-4" /> Enviar pedido pelo WhatsApp
+          </button>
+          <p className="txt-muted" style={{ fontSize: "0.78rem", marginTop: "0.6rem", textAlign: "center" }}>
+            Seu pedido será aberto no WhatsApp, já preenchido, para combinar pagamento e entrega.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// APP STANDALONE — dados de exemplo editáveis
+// ============================================================
+const PRODUCTS = [
+  { id: 1, name: "Pote Hermético", category: "potes", price: 29.90, oldPrice: 39.90, stock: 10, badge: "oferta", image: "" },
+  { id: 2, name: "Organizador Multiuso", category: "organizacao", price: 24.90, stock: 8, badge: "", image: "" },
+  { id: 3, name: "Kit Cozinha", category: "cozinha", price: 49.90, stock: 5, badge: "", image: "" },
+  { id: 4, name: "Garrafa Térmica", category: "garrafas", price: 59.90, stock: 7, badge: "", image: "" },
+  { id: 5, name: "Pote de Conservação", category: "conservacao", price: 19.90, stock: 12, badge: "", image: "" },
+];
+
+function App() {
+  const [page, setPage] = React.useState("home");
+  const [category, setCategory] = React.useState("todas");
+  const [cart, setCart] = React.useState([]);
+  const [query, setQuery] = React.useState("");
+
+  const visibleCategories = CATEGORIES.filter(c => c.visible);
+
+  const goTo = (p) => setPage(p);
+
+  const addToCart = (product) => {
+    setCart(old => {
+      const found = old.find(i => i.productId === product.id);
+      if (found) {
+        return old.map(i => i.productId === product.id ? {...i, qty: i.qty + 1} : i);
+      }
+      return [...old, { productId: product.id, product, qty: 1 }];
+    });
+  };
+
+  const updateQty = (id, color, qty) => {
+    setCart(old => old.map(i => i.productId === id ? {...i, qty} : i));
+  };
+
+  const removeItem = (id) => {
+    setCart(old => old.filter(i => i.productId !== id));
+  };
+
+  const clearCart = () => setCart([]);
+
+  const setCategoryFilter = (value) => {
+    setCategory(value);
+    setPage("busca");
+  };
+
+  const filteredProducts = PRODUCTS.filter(p => {
+    const okCat = category === "todas" || p.category === category;
+    const okQuery = !query || p.name.toLowerCase().includes(query.toLowerCase());
+    return okCat && okQuery;
+  });
+
+  const viewProduct = (product) => {
+    alert(product.name + "\n" + formatPrice(product.price));
+  };
+
+  return (
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">Sua <span>Loja</span></div>
+        <div className="header-actions">
+          <button className="btn btn-outline" onClick={() => goTo("home")}>Início</button>
+          <button className="cart-button" onClick={() => goTo("carrinho")}>
+            <ShoppingCart size={18}/> Carrinho ({cart.reduce((s,i) => s+i.qty, 0)})
+          </button>
+        </div>
+      </header>
+
+      {page === "home" && (
+        <>
+          <section className="hero">
+            <h1>Encontre o que você precisa</h1>
+            <p>Escolha uma categoria para continuar.</p>
+          </section>
+          <CategorySection
+            goTo={goTo}
+            setCategoryFilter={setCategoryFilter}
+            hiddenCategories={CATEGORIES.filter(c => !c.visible).map(c => c.id)}
+          />
+        </>
+      )}
+
+      {page === "busca" && (
+        <BuscaPage
+          products={filteredProducts}
+          initialQuery={query}
+          initialCategory={category}
+          goTo={goTo}
+          addToCart={addToCart}
+          viewProduct={viewProduct}
+        />
+      )}
+
+      {page === "carrinho" && (
+        <CartPage
+          cart={cart}
+          products={PRODUCTS}
+          updateQty={updateQty}
+          removeItem={removeItem}
+          goTo={goTo}
+          clearCart={clearCart}
+          coupons={[]}
+          addOrder={() => {}}
+        />
+      )}
+
+      <footer>
+        <button onClick={() => goTo("home")}>Voltar para categorias</button>
+      </footer>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+</script>
+</body>
+</html>
