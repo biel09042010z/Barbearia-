@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seu Nome — Barbearia</title>
-<meta name="description" content="Seu Nome Barbearia — cortes modernos, barba impecável e atendimento sob medida em Monte Alto/SP.">
+<title>Invictus Barber Shop — Barbearia</title>
+<meta name="description" content="Invictus Barber Shop — cortes modernos, barba impecável e atendimento sob medida em Monte Alto/SP.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700;9..144,900&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -58,6 +58,9 @@
   ul{ list-style:none; }
 
   .wrap{ max-width: var(--container); margin:0 auto; padding: 0 28px; }
+  @media (max-width: 900px){
+    .wrap{ padding: 0 16px; }
+  }
 
   ::selection{ background: var(--brass); color:#141210; }
 
@@ -89,14 +92,23 @@
     align-items:center;
     justify-content:space-between;
     height: 78px;
+    gap: 10px;
   }
   .logo{
     font-family: var(--display);
     font-weight: 700;
     font-size: 1.35rem;
     letter-spacing: 0.01em;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
-  .logo span{ color: var(--brass); font-style: italic; font-weight: 500; }
+  .logo span{ color: var(--brass); font-style: italic; font-weight: 500; margin-left: 0.35em; }
+  @media (max-width: 900px){
+    .logo{ font-size: 1.05rem; }
+  }
+  @media (max-width: 420px){
+    .logo{ font-size: 0.92rem; }
+  }
 
   .nav-links{
     display:flex;
@@ -130,6 +142,29 @@
     white-space: nowrap;
   }
   .nav-cta:hover{ background: var(--brass); border-color: var(--brass); color:#141210; }
+
+  .nav-actions{ display:flex; align-items:center; gap: 0.7rem; flex-shrink:0; }
+  .cta-text-short{ display:none; }
+  .nav-icon-btn{
+    position:relative; background:none; border:1px solid var(--line); border-radius: 50%;
+    width: 42px; height:42px; display:flex; align-items:center; justify-content:center;
+    color: var(--ink); cursor:pointer; transition: border-color .2s ease; flex-shrink:0;
+  }
+  .nav-icon-btn:hover{ border-color: var(--brass-deep); }
+  .nav-icon-btn svg{ width:19px; height:19px; }
+  .nav-cart-count{
+    position:absolute; top:-6px; right:-6px; background:#c65b4a; color:#f3ece1;
+    font-family: var(--mono); font-size:0.62rem; font-weight:700; width:18px; height:18px;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+  @media (max-width: 900px){
+    .nav-actions{ gap: 0.5rem; }
+    .nav-icon-btn{ width:38px; height:38px; }
+    .nav-icon-btn svg{ width:17px; height:17px; }
+    .cta-text-full{ display:none; }
+    .cta-text-short{ display:inline; }
+    .nav-cta{ padding: 8px 14px; font-size: 0.68rem; }
+  }
 
   .nav-toggle{ display:none; background:none; border:none; color:var(--ink); font-size:1.6rem; cursor:pointer; }
 
@@ -311,6 +346,125 @@
   }
   @keyframes pulseLine{
     0%,100%{ opacity:.3; } 50%{ opacity:1; }
+  }
+
+  /* ---------- LOJA ---------- */
+  .cat-pills{ display:flex; flex-wrap:wrap; gap: 0.7rem; margin-bottom: 2.6rem; }
+  .cat-pill{
+    font-family: var(--mono); font-size: 0.76rem; letter-spacing: 0.04em;
+    padding: 9px 18px; border-radius: 50px; border: 1px solid var(--line);
+    color: var(--ink-dim); cursor: pointer; background: transparent; transition: all .2s ease;
+  }
+  .cat-pill:hover{ border-color: var(--brass-deep); color: var(--ink); }
+  .cat-pill.active{ background: var(--brass); border-color: var(--brass); color: #14110d; font-weight:600; }
+
+  .product-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.6rem;
+  }
+  .product-card{
+    background: var(--bg-panel); border: 1px solid var(--line); border-radius: 4px;
+    overflow:hidden; display:flex; flex-direction:column;
+    transition: transform .3s ease, border-color .3s ease;
+  }
+  .product-card:hover{ transform: translateY(-6px); border-color: var(--brass-deep); }
+  .product-photo{
+    aspect-ratio: 1; position:relative; overflow:hidden;
+    background: repeating-linear-gradient(135deg, #1a1613, #1a1613 3px, #1e1a16 3px, #1e1a16 26px);
+  }
+  .product-photo img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .product-photo .icon-fallback{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2.4rem; opacity:.35; }
+  .product-badge{
+    position:absolute; top:10px; left:10px; z-index:2;
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.06em; text-transform:uppercase;
+    padding: 4px 10px; border-radius: 50px; background: var(--brass); color:#14110d; font-weight:700;
+  }
+  .product-badge.oferta{ background:#c65b4a; color:#f3ece1; }
+  .product-out-overlay{
+    position:absolute; inset:0; background: rgba(13,12,11,.68); z-index:2;
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--mono); font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-faint);
+  }
+  .product-body{ padding: 1.1rem 1.2rem 1.3rem; display:flex; flex-direction:column; gap:0.5rem; flex-grow:1; }
+  .product-name{ font-family: var(--display); font-size:1.05rem; font-weight:600; line-height:1.2; }
+  .product-price-row{ display:flex; align-items:baseline; gap:0.5rem; margin-top:auto; }
+  .product-price{ font-family: var(--mono); font-size:1.1rem; color: var(--brass-bright); font-weight:700; }
+  .product-price-old{ font-family: var(--mono); font-size:0.8rem; color: var(--ink-faint); text-decoration: line-through; }
+  .product-add{
+    margin-top:0.6rem; width:100%; font-family: var(--mono); font-size:0.72rem; letter-spacing:0.05em; text-transform:uppercase;
+    padding: 10px; border-radius:2px; background: var(--brass); color:#14110d; font-weight:700; border:none; cursor:pointer;
+    transition: background .2s ease;
+  }
+  .product-add:hover{ background: var(--brass-bright); }
+  .product-add:disabled{ background: var(--line); color: var(--ink-faint); cursor:not-allowed; }
+  .loja-empty{ color: var(--ink-faint); font-family: var(--mono); font-size:0.85rem; padding: 2rem 0; }
+
+  /* ---------- CARRINHO ---------- */
+  .cart-overlay{
+    position:fixed; inset:0; background: rgba(13,12,11,.7); z-index:80;
+    display:none; align-items:flex-start; justify-content:center;
+    overflow-y:auto; padding: 40px 16px;
+  }
+  .cart-overlay.open{ display:flex; }
+  .cart-drawer{
+    background: var(--bg-panel); border: 1px solid var(--line); border-radius: 6px;
+    width: min(560px, 100%); padding: 2rem 1.8rem 2.4rem; margin-bottom: 40px;
+  }
+  .cart-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:1.6rem; }
+  .cart-head h3{ font-family: var(--display); font-size:1.6rem; }
+  .cart-close{ background:none; border:none; color: var(--ink-dim); font-size:1.3rem; cursor:pointer; }
+  .cart-item{ display:flex; gap:14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .cart-item img, .cart-item .ci-fallback{ width:64px; height:64px; border-radius:3px; object-fit:cover; flex-shrink:0; background: var(--bg-alt); display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+  .cart-item-info{ flex-grow:1; }
+  .cart-item-name{ font-size:0.96rem; font-weight:600; }
+  .cart-item-price{ font-family: var(--mono); font-size:0.86rem; color: var(--brass); margin-top:3px; }
+  .cart-item-qty{ display:flex; align-items:center; gap:10px; margin-top:8px; }
+  .qty-btn{ width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background:none; color:var(--ink); cursor:pointer; font-size:1rem; }
+  .qty-btn:hover{ border-color: var(--brass-deep); }
+  .cart-item-remove{ background:none; border:none; color: var(--ink-faint); font-size:0.95rem; cursor:pointer; align-self:flex-start; }
+  .cart-item-remove:hover{ color:#f87171; }
+  .cart-continue{
+    display:inline-flex; align-items:center; gap:8px; margin: 1.4rem 0;
+    color: var(--brass-bright); font-size:0.9rem; text-decoration:none; cursor:pointer; background:none; border:none;
+  }
+  .cart-empty{ color: var(--ink-faint); font-size:0.9rem; text-align:center; padding: 2.4rem 0; }
+
+  .cart-summary{
+    background: var(--bg-alt); border: 1px solid var(--line); border-radius: 6px;
+    padding: 1.6rem;
+  }
+  .cart-summary h4{ font-family: var(--display); font-size:1.2rem; margin-bottom:1.2rem; }
+  .cart-row{ display:flex; justify-content:space-between; font-family: var(--mono); font-size:0.94rem; padding: 8px 0; }
+  .cart-row.total{ font-size:1.1rem; font-weight:700; color: var(--brass-bright); border-top:1px solid var(--line); margin-top:6px; padding-top:14px; }
+  .cart-field{ margin-top: 1.2rem; }
+  .cart-field label{ display:block; font-family: var(--mono); font-size:0.72rem; letter-spacing:0.05em; text-transform:uppercase; color: var(--ink-faint); margin-bottom:0.5rem; }
+  .cart-field input, .cart-field textarea{
+    width:100%; background: var(--bg-panel); border:1px solid var(--line); border-radius:3px;
+    color: var(--ink); padding: 11px 13px; font-size:0.92rem; font-family:inherit; outline:none;
+  }
+  .cart-field input:focus, .cart-field textarea:focus{ border-color: var(--brass-deep); }
+  .cart-field textarea{ resize:vertical; min-height:70px; }
+  .pay-options{ display:flex; flex-wrap:wrap; gap:0.7rem; margin-top: 0.4rem; }
+  .pay-opt{
+    flex: 1 1 100px; display:flex; align-items:center; gap:8px; cursor:pointer;
+    border:1px solid var(--line); border-radius:3px; padding: 10px 12px; font-size:0.88rem;
+    transition: border-color .2s ease;
+  }
+  .pay-opt:has(input:checked){ border-color: var(--brass); color: var(--brass-bright); }
+  .pay-opt input{ accent-color: var(--brass); }
+  .cart-checkout-btn{
+    width:100%; justify-content:center; margin-top: 1.6rem;
+    background: #1f7a4d; color:#f3ece1; border:none; border-radius: 50px; padding: 15px;
+    font-family: var(--mono); font-size:0.86rem; letter-spacing:0.05em; text-transform:uppercase;
+    display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:700; transition: background .2s ease;
+    text-decoration:none;
+  }
+  .cart-checkout-btn:hover{ background:#249159; }
+  .cart-checkout-note{ font-size:0.78rem; color: var(--ink-faint); text-align:center; margin-top:0.9rem; }
+
+  @media (max-width: 900px){
+    .product-grid{ grid-template-columns: repeat(2, 1fr); }
   }
 
   /* ---------- SECTION SHELL ---------- */
@@ -646,15 +800,21 @@
 
 <header id="siteHeader">
   <nav class="wrap">
-    <a class="logo" href="#top">SEU <span>Nome</span></a>
+    <a class="logo" href="#top">INVICTUS <span>Barber Shop</span></a>
     <ul class="nav-links">
       <li><a href="#sobre">Sobre</a></li>
       <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#loja">Loja</a></li>
       <li><a href="#galeria">Galeria</a></li>
       <li><a href="#local">Localização</a></li>
-      <li><a href="categorias-carrinho.html">Loja</a></li>
     </ul>
-    <div style="display:flex;gap:10px;align-items:center"><a class="nav-cta" href="categorias-carrinho.html">Ver produtos</a><a class="nav-cta" href="#agendar">Agendar horário</a></div>
+    <div class="nav-actions">
+      <a class="nav-cta" href="#agendar"><span class="cta-text-full">Agendar horário</span><span class="cta-text-short">Agendar</span></a>
+      <button class="nav-icon-btn" id="cartFloatBtn" aria-label="Ver carrinho">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="nav-cart-count" id="cartCount" style="display:none">0</span>
+      </button>
+    </div>
 
   </nav>
 </header>
@@ -666,7 +826,7 @@
     <div class="hero-grain"></div>
     <div class="hero-content">
       <div class="eyebrow">Barbearia · Monte Alto — SP</div>
-      <h1>Seu nome<em>é a sua marca.</em></h1>
+      <h1>Invictus.<em>Sem concessões.</em></h1>
       <p class="hero-sub">Cortes de precisão, barba impecável e um atendimento que trata cada cliente como referência — não como número.</p>
       <div class="hero-actions">
         <a href="#agendar" class="btn btn-primary">Agendar horário →</a>
@@ -683,7 +843,7 @@
       <div class="sobre-text reveal">
         <span class="section-eyebrow">Sobre a barbearia</span>
         <h2 class="section-title">Tradição de barbearia, <em>padrão de estúdio.</em></h2>
-        <p>Na Seu Nome, cada cadeira é um espaço reservado para o seu estilo. Unimos técnica clássica de barbeiro com um ambiente pensado nos mínimos detalhes — porque um bom corte começa muito antes da tesoura.</p>
+        <p>Na Invictus, cada cadeira é um espaço reservado para o seu estilo. Unimos técnica clássica de barbeiro com um ambiente pensado nos mínimos detalhes — porque um bom corte começa muito antes da tesoura.</p>
         <p>Em Monte Alto/SP, construímos uma clientela que não troca de barbeiro: eles voltam porque sabem exatamente o que vão encontrar aqui.</p>
       </div>
     </div>
@@ -737,6 +897,24 @@
     </div>
   </section>
 
+  <!-- LOJA -->
+  <section id="loja">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="section-eyebrow">Loja</span>
+          <h2 class="section-title">Produtos <em>Invictus.</em></h2>
+        </div>
+        <p class="section-note">Pomadas, óleos e acessórios selecionados. Adicione ao carrinho e finalize pelo WhatsApp.</p>
+      </div>
+
+      <div class="cat-pills" id="lojaCategoriaPills"></div>
+      <div class="product-grid" id="lojaProdutosGrid">
+        <p class="loja-empty">Carregando produtos...</p>
+      </div>
+    </div>
+  </section>
+
   <!-- GALERIA -->
   <section id="galeria">
     <div class="wrap">
@@ -745,7 +923,7 @@
           <span class="section-eyebrow">Galeria</span>
           <h2 class="section-title">Cortes que <em>saem da cadeira.</em></h2>
         </div>
-        <p class="section-note">Uma seleção de trabalhos feitos na cadeira da Seu Nome.</p>
+        <p class="section-note">Uma seleção de trabalhos feitos na cadeira da Invictus.</p>
       </div>
       <div class="galeria-grid reveal">
         <div class="g-item" data-label="Degradê navalhado"><img src="images/foto-1.jpg" alt="Degradê navalhado" onerror="this.remove()"></div>
@@ -799,7 +977,7 @@
   <div class="wrap">
     <div class="footer-top">
       <div>
-        <div class="footer-logo">SEU <span>Nome</span></div>
+        <div class="footer-logo">INVICTUS <span>Barber Shop</span></div>
         <p style="color:var(--ink-faint); font-size:0.85rem; margin-top:0.6rem; max-width:220px;">Barbearia — Monte Alto/SP</p>
       </div>
       <div class="footer-cols">
@@ -807,6 +985,7 @@
           <h4>Navegação</h4>
           <a href="#sobre">Sobre</a>
           <a href="#servicos">Serviços</a>
+          <a href="#loja">Loja</a>
           <a href="#galeria">Galeria</a>
           <a href="#local">Localização</a>
         </div>
@@ -819,7 +998,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Seu Nome Barbearia. Todos os direitos reservados.</span>
+      <span>© 2026 Invictus Barber Shop. Todos os direitos reservados.</span>
       <span>Feito com Claude</span>
       <a href="admin.html" aria-label="Área administrativa" title="Área administrativa" style="display:inline-flex;align-items:center;color:var(--ink-faint);opacity:.45;transition:opacity .25s;" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='.45'">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -829,6 +1008,18 @@
     </div>
   </div>
 </footer>
+
+<div class="cart-overlay" id="cartOverlay">
+  <div class="cart-drawer">
+    <div class="cart-head">
+      <h3>Seu <em style="font-style:italic;color:var(--brass-bright)">carrinho</em></h3>
+      <button class="cart-close" id="cartCloseBtn" aria-label="Fechar carrinho">✕</button>
+    </div>
+    <div id="cartItemsList"></div>
+    <button class="cart-continue" id="cartContinueBtn">← Continuar comprando</button>
+    <div id="cartSummaryWrap"></div>
+  </div>
+</div>
 
 <a class="whatsapp-float" href="https://wa.me/5589981225667" target="_blank" rel="noopener" aria-label="Chamar no WhatsApp">
   <span class="ping"></span>
@@ -861,6 +1052,228 @@
     a.style.scrollMarginTop = '90px';
   });
   document.querySelectorAll('section, main').forEach(s => s.style.scrollMarginTop = '78px');
+
+  /* ══ LOJA + CARRINHO ══════════════════════════════ */
+  const SB_URL = 'https://zfzscfabjpiqnudcggfi.supabase.co';
+  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmenNjZmFianBpcW51ZGNnZ2ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5ODcyMTQsImV4cCI6MjEwMjU2MzIxNH0.xqkXptWCjIm5CNW5O1OlXMzZu0gTGGNHUSiRlhh5JOM';
+  const SB_HDR = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` };
+  const WHATSAPP_NUMBER = '5589981225667';
+
+  let lojaCategorias = [];
+  let lojaProdutos = [];
+  let categoriaAtiva = 'todas';
+  let carrinho = JSON.parse(localStorage.getItem('invictus_carrinho') || '[]');
+
+  function fmtPreco(n){ return 'R$ ' + parseFloat(n).toFixed(2).replace('.', ','); }
+
+  async function carregarLoja() {
+    try {
+      const [catsRes, prodsRes] = await Promise.all([
+        fetch(`${SB_URL}/rest/v1/categorias_produtos?ativo=eq.true&order=ordem`, { headers: SB_HDR }),
+        fetch(`${SB_URL}/rest/v1/produtos?ativo=eq.true&order=ordem`, { headers: SB_HDR })
+      ]);
+      lojaCategorias = catsRes.ok ? await catsRes.json() : [];
+      lojaProdutos = prodsRes.ok ? await prodsRes.json() : [];
+    } catch(e) {
+      lojaCategorias = []; lojaProdutos = [];
+    }
+    renderCategoriaPills();
+    renderProdutosGrid();
+  }
+
+  function renderCategoriaPills() {
+    const wrap = document.getElementById('lojaCategoriaPills');
+    if (!lojaCategorias.length) { wrap.innerHTML = ''; return; }
+    const pills = [{ id: 'todas', nome: 'Todas' }, ...lojaCategorias];
+    wrap.innerHTML = pills.map(c => `
+      <button class="cat-pill ${categoriaAtiva == c.id ? 'active' : ''}" data-cat="${c.id}">${c.nome}</button>
+    `).join('');
+    wrap.querySelectorAll('.cat-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        categoriaAtiva = btn.dataset.cat === 'todas' ? 'todas' : Number(btn.dataset.cat);
+        renderCategoriaPills();
+        renderProdutosGrid();
+      });
+    });
+  }
+
+  function renderProdutosGrid() {
+    const grid = document.getElementById('lojaProdutosGrid');
+    if (!lojaProdutos.length) {
+      grid.innerHTML = '<p class="loja-empty">Em breve, novidades na loja.</p>';
+      return;
+    }
+    const lista = categoriaAtiva === 'todas' ? lojaProdutos : lojaProdutos.filter(p => p.categoria_id === categoriaAtiva);
+    if (!lista.length) {
+      grid.innerHTML = '<p class="loja-empty">Nenhum produto nessa categoria ainda.</p>';
+      return;
+    }
+    grid.innerHTML = lista.map(p => {
+      const esgotado = p.estoque <= 0;
+      const badgeClass = p.badge === 'oferta' ? 'oferta' : '';
+      const badgeLabel = { novo: 'Novo', oferta: 'Oferta', 'mais-vendido': 'Mais vendido' }[p.badge] || '';
+      return `
+      <div class="product-card reveal in">
+        <div class="product-photo">
+          ${badgeLabel ? `<span class="product-badge ${badgeClass}">${badgeLabel}</span>` : ''}
+          ${esgotado ? `<div class="product-out-overlay">Esgotado</div>` : ''}
+          ${p.imagem_url ? `<img src="${p.imagem_url}" alt="${p.nome}">` : `<div class="icon-fallback">🧴</div>`}
+        </div>
+        <div class="product-body">
+          <div class="product-name">${p.nome}</div>
+          <div class="product-price-row">
+            ${p.preco_antigo ? `<span class="product-price-old">${fmtPreco(p.preco_antigo)}</span>` : ''}
+            <span class="product-price">${fmtPreco(p.preco)}</span>
+          </div>
+          <button class="product-add" data-id="${p.id}" ${esgotado ? 'disabled' : ''}>${esgotado ? 'Esgotado' : 'Adicionar ao carrinho'}</button>
+        </div>
+      </div>`;
+    }).join('');
+    grid.querySelectorAll('.product-add:not(:disabled)').forEach(btn => {
+      btn.addEventListener('click', () => addAoCarrinho(Number(btn.dataset.id)));
+    });
+  }
+
+  function addAoCarrinho(produtoId) {
+    const item = carrinho.find(i => i.id === produtoId);
+    if (item) item.qtd += 1;
+    else carrinho.push({ id: produtoId, qtd: 1 });
+    salvarCarrinho();
+    renderCarrinho();
+    abrirCarrinho();
+  }
+
+  function salvarCarrinho() {
+    localStorage.setItem('invictus_carrinho', JSON.stringify(carrinho));
+    const totalItens = carrinho.reduce((s, i) => s + i.qtd, 0);
+    const countEl = document.getElementById('cartCount');
+    if (totalItens > 0) { countEl.style.display = 'flex'; countEl.textContent = totalItens; }
+    else countEl.style.display = 'none';
+  }
+
+  function renderCarrinho() {
+    const listEl = document.getElementById('cartItemsList');
+    const continueBtn = document.getElementById('cartContinueBtn');
+    const summaryWrap = document.getElementById('cartSummaryWrap');
+    if (!carrinho.length) {
+      listEl.innerHTML = '<div class="cart-empty">Seu carrinho está vazio.</div>';
+      continueBtn.style.display = 'none';
+      summaryWrap.innerHTML = '';
+      return;
+    }
+    continueBtn.style.display = 'inline-flex';
+    let subtotal = 0;
+    listEl.innerHTML = carrinho.map(item => {
+      const p = lojaProdutos.find(p => p.id === item.id);
+      if (!p) return '';
+      subtotal += p.preco * item.qtd;
+      return `
+      <div class="cart-item">
+        ${p.imagem_url ? `<img src="${p.imagem_url}" alt="${p.nome}">` : `<div class="ci-fallback">🧴</div>`}
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.nome}</div>
+          <div class="cart-item-price">${fmtPreco(p.preco)}</div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" data-action="dec" data-id="${p.id}">−</button>
+            <span>${item.qtd}</span>
+            <button class="qty-btn" data-action="inc" data-id="${p.id}">+</button>
+          </div>
+        </div>
+        <button class="cart-item-remove" data-action="remove" data-id="${p.id}" aria-label="Remover">✕</button>
+      </div>`;
+    }).join('');
+
+    summaryWrap.innerHTML = `
+      <div class="cart-summary">
+        <h4>Resumo do pedido</h4>
+        <div class="cart-row"><span>Subtotal</span><span>${fmtPreco(subtotal)}</span></div>
+        <div class="cart-row total"><span>Total</span><span>${fmtPreco(subtotal)}</span></div>
+
+        <div class="cart-field">
+          <label>Nome completo</label>
+          <input type="text" id="cartNome" placeholder="Digite seu nome completo" />
+        </div>
+
+        <div class="cart-field">
+          <label>Forma de pagamento</label>
+          <div class="pay-options">
+            <label class="pay-opt"><input type="radio" name="cartPagamento" value="Pix" checked> Pix</label>
+            <label class="pay-opt"><input type="radio" name="cartPagamento" value="Dinheiro"> Dinheiro</label>
+            <label class="pay-opt"><input type="radio" name="cartPagamento" value="Cartão"> Cartão</label>
+          </div>
+        </div>
+
+        <div class="cart-field">
+          <label>Observações (opcional)</label>
+          <textarea id="cartObs" placeholder="Ex: quero retirar na loja, entregar amanhã..."></textarea>
+        </div>
+
+        <button class="cart-checkout-btn" id="cartCheckoutBtn">
+          <svg viewBox="0 0 32 32" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M16.02 3C9.4 3 4.02 8.38 4.02 15c0 2.24.62 4.34 1.7 6.14L4 29l8.06-1.66A11.94 11.94 0 0 0 16.02 27C22.64 27 28 21.62 28 15S22.64 3 16.02 3Zm0 21.8a9.7 9.7 0 0 1-4.95-1.36l-.36-.21-4.78.98.99-4.66-.24-.38A9.72 9.72 0 0 1 5.22 15c0-5.96 4.84-10.8 10.8-10.8S26.8 9.04 26.8 15 21.98 24.8 16.02 24.8Zm5.6-8.1c-.31-.15-1.8-.89-2.08-.99-.28-.1-.48-.15-.68.15-.2.31-.78.99-.96 1.19-.18.2-.35.22-.66.08-.31-.15-1.3-.48-2.48-1.53-.92-.82-1.54-1.83-1.72-2.14-.18-.31-.02-.48.13-.63.14-.14.31-.35.46-.53.15-.18.2-.31.31-.51.1-.2.05-.38-.02-.53-.08-.15-.68-1.65-.94-2.26-.25-.6-.5-.51-.68-.52h-.58c-.2 0-.53.08-.81.38-.28.31-1.06 1.03-1.06 2.52 0 1.49 1.08 2.93 1.23 3.13.15.2 2.13 3.26 5.17 4.57.72.31 1.29.5 1.73.64.73.23 1.39.2 1.91.12.58-.09 1.8-.73 2.06-1.44.25-.71.25-1.31.18-1.44-.07-.13-.27-.2-.58-.35Z"/></svg>
+          Enviar pedido pelo WhatsApp
+        </button>
+        <p class="cart-checkout-note">Seu pedido será aberto no WhatsApp, já preenchido, para combinar pagamento e entrega.</p>
+      </div>
+    `;
+
+    listEl.querySelectorAll('[data-action="inc"]').forEach(b => b.addEventListener('click', () => alterarQtd(Number(b.dataset.id), 1)));
+    listEl.querySelectorAll('[data-action="dec"]').forEach(b => b.addEventListener('click', () => alterarQtd(Number(b.dataset.id), -1)));
+    listEl.querySelectorAll('[data-action="remove"]').forEach(b => b.addEventListener('click', () => removerItem(Number(b.dataset.id))));
+    const checkoutBtn = document.getElementById('cartCheckoutBtn');
+    if (checkoutBtn) checkoutBtn.addEventListener('click', finalizarPedido);
+  }
+
+  function alterarQtd(id, delta) {
+    const item = carrinho.find(i => i.id === id);
+    if (!item) return;
+    item.qtd += delta;
+    if (item.qtd <= 0) carrinho = carrinho.filter(i => i.id !== id);
+    salvarCarrinho();
+    renderCarrinho();
+  }
+
+  function removerItem(id) {
+    carrinho = carrinho.filter(i => i.id !== id);
+    salvarCarrinho();
+    renderCarrinho();
+  }
+
+  function finalizarPedido() {
+    if (!carrinho.length) return;
+    const nome = (document.getElementById('cartNome')?.value || '').trim();
+    const pagamentoEl = document.querySelector('input[name="cartPagamento"]:checked');
+    const pagamento = pagamentoEl ? pagamentoEl.value : 'Pix';
+    const obs = (document.getElementById('cartObs')?.value || '').trim();
+
+    let msg = `Olá! Quero fazer um pedido na Invictus Barber Shop:\n\n`;
+    let subtotal = 0;
+    carrinho.forEach(item => {
+      const p = lojaProdutos.find(p => p.id === item.id);
+      if (!p) return;
+      subtotal += p.preco * item.qtd;
+      msg += `• ${item.qtd}x ${p.nome} — ${fmtPreco(p.preco * item.qtd)}\n`;
+    });
+    msg += `\nTotal: ${fmtPreco(subtotal)}\n`;
+    if (nome) msg += `\nNome: ${nome}`;
+    msg += `\nPagamento: ${pagamento}`;
+    if (obs) msg += `\nObs: ${obs}`;
+
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  function abrirCarrinho() { document.getElementById('cartOverlay').classList.add('open'); }
+  function fecharCarrinho() { document.getElementById('cartOverlay').classList.remove('open'); }
+
+  document.getElementById('cartFloatBtn').addEventListener('click', abrirCarrinho);
+  document.getElementById('cartCloseBtn').addEventListener('click', fecharCarrinho);
+  document.getElementById('cartContinueBtn').addEventListener('click', fecharCarrinho);
+  document.getElementById('cartOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'cartOverlay') fecharCarrinho();
+  });
+
+  salvarCarrinho();
+  renderCarrinho();
+  carregarLoja();
 </script>
 
 </body>

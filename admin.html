@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — Barbearia</title>
+  <title>Admin — Invictus Barber Shop</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
@@ -314,7 +314,7 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-logo">
-      Seu <em>Nome</em>
+      Invictus <em>Barber Shop</em>
       <span class="topbar-badge">ADMIN</span>
     </div>
     <div class="topbar-actions">
@@ -326,6 +326,7 @@
   <!-- TABS -->
   <nav class="tabs-bar" aria-label="Seções do painel">
     <button class="tab-btn active" onclick="switchTab('servicos', this)">✂️ Serviços</button>
+    <button class="tab-btn" onclick="switchTab('loja', this)">🛍️ Loja</button>
     <button class="tab-btn" onclick="switchTab('galeria', this)">🖼️ Galeria</button>
     <button class="tab-btn" onclick="switchTab('agendamentos', this)">📅 Agendamentos</button>
   </nav>
@@ -375,6 +376,94 @@
             </tr>
           </thead>
           <tbody id="servicosTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── LOJA (CATEGORIAS + PRODUTOS) ───────────── -->
+    <section class="tab-panel" id="tab-loja">
+      <h2 class="section-title">🏷️ <em>Categorias</em></h2>
+      <p style="color:var(--muted);font-size:.85rem;margin:-10px 0 16px;">Crie as categorias dos produtos que você vai vender (ex: Pomadas, Óleos, Acessórios). Pode renomear ou excluir quando quiser.</p>
+
+      <div class="form-card" style="grid-template-columns:1fr auto;">
+        <div>
+          <label class="form-label">Nome da categoria *</label>
+          <input class="form-input" id="catNome" placeholder="Ex: Pomadas" onkeydown="if(event.key==='Enter') saveCategoria()" />
+        </div>
+        <div class="form-actions" style="grid-column:auto;align-items:flex-end;padding-bottom:1px;">
+          <button class="btn-primary" onclick="saveCategoria()">💾 Salvar</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:28px;">
+        <table>
+          <thead><tr><th>Categoria</th><th>Produtos</th><th>Ações</th></tr></thead>
+          <tbody id="categoriasTable"></tbody>
+        </table>
+      </div>
+
+      <h2 class="section-title">📦 <em>Produtos</em></h2>
+
+      <div class="form-card" id="produtoForm">
+        <div>
+          <label class="form-label">Nome *</label>
+          <input class="form-input" id="pNome" placeholder="Ex: Pomada Modeladora" />
+        </div>
+        <div>
+          <label class="form-label">Categoria *</label>
+          <select class="form-select" id="pCategoria"></select>
+        </div>
+        <div>
+          <label class="form-label">Preço (R$) *</label>
+          <input class="form-input" id="pPreco" type="number" step="0.01" placeholder="0,00" />
+        </div>
+        <div>
+          <label class="form-label">Preço antigo (opcional)</label>
+          <input class="form-input" id="pPrecoAntigo" type="number" step="0.01" placeholder="0,00" />
+        </div>
+        <div>
+          <label class="form-label">Estoque *</label>
+          <input class="form-input" id="pEstoque" type="number" placeholder="0" />
+        </div>
+        <div>
+          <label class="form-label">Selo</label>
+          <select class="form-select" id="pBadge">
+            <option value="">Nenhum</option>
+            <option value="novo">Novo</option>
+            <option value="oferta">Oferta</option>
+            <option value="mais-vendido">Mais vendido</option>
+          </select>
+        </div>
+        <div class="full">
+          <label class="form-label">Imagem do produto (opcional)</label>
+          <input type="file" id="pImgFile" accept="image/*" onchange="previewProdutoImg(this)" />
+          <label for="pImgFile" class="upload-box">
+            <span>📷</span>
+            <span id="pImgLabelText">Escolher imagem</span>
+          </label>
+          <div id="pImgPreviewWrap" style="display:none;margin-top:10px;position:relative;width:100%;max-height:180px;border-radius:var(--r);overflow:hidden">
+            <img id="pImgPreview" src="" alt="Preview" style="width:100%;max-height:180px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border)" />
+            <button onclick="clearProdutoImg()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;display:grid;place-items:center">✕</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding-top:6px;">
+          <input type="checkbox" id="pAtivo" checked style="width:18px;height:18px;accent-color:var(--brass);cursor:pointer" />
+          <label for="pAtivo" class="form-label" style="margin:0;cursor:pointer;text-transform:none;letter-spacing:0;font-size:.85rem;color:var(--muted)">Visível na loja</label>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="saveProduto()">💾 Salvar produto</button>
+          <button class="btn-ghost" onclick="clearProdutoForm()">Limpar</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Foto</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="produtosTable"></tbody>
         </table>
       </div>
     </section>
@@ -473,8 +562,12 @@ async function sbDelete(table, filter) {
 /* ══ STATE ═════════════════════════════════════════ */
 let servicos = [];
 let galeriaFotos = [];
+let categorias = [];
+let produtos = [];
 let editingServicoId = null;
+let editingProdutoId = null;
 let selectedGaleriaFile = null;
+let selectedProdutoFile = null;
 
 /* ══ LOGIN — Supabase Auth ════════════════════════ */
 async function tryLogin() {
@@ -545,12 +638,13 @@ function switchTab(name, btn) {
   btn.classList.add('active');
   if (name === 'agendamentos') renderAgendamentos();
   if (name === 'galeria') renderGaleriaGrid();
+  if (name === 'loja') { renderCategoriasTable(); renderProdutosTable(); }
 }
 
 /* ══ INIT ══════════════════════════════════════════ */
 async function init() {
   try {
-    await Promise.all([loadServicos(), loadGaleria()]);
+    await Promise.all([loadServicos(), loadGaleria(), loadCategorias(), loadProdutos()]);
   } catch(e) {
     showToast('⚠️ Erro ao carregar dados do Supabase.');
   }
@@ -740,6 +834,231 @@ async function deleteFoto(id) {
     renderGaleriaGrid();
     showToast('🗑 Foto removida.');
   } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+/* ══ CATEGORIAS ════════════════════════════════════ */
+async function loadCategorias() {
+  categorias = await sbGet('categorias_produtos', '', 'ordem');
+  populaCategoriaSelect();
+}
+
+function populaCategoriaSelect() {
+  const sel = document.getElementById('pCategoria');
+  if (!sel) return;
+  const atual = sel.value;
+  sel.innerHTML = categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')
+    || '<option value="">Crie uma categoria primeiro</option>';
+  if (atual) sel.value = atual;
+}
+
+function renderCategoriasTable() {
+  const tbody = document.getElementById('categoriasTable');
+  if (!categorias.length) {
+    tbody.innerHTML = `<tr><td colspan="3"><div class="empty"><div class="empty-icon">🏷️</div>Nenhuma categoria ainda. Crie a primeira acima.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = categorias.map(c => {
+    const qtd = produtos.filter(p => p.categoria_id === c.id).length;
+    return `
+    <tr>
+      <td style="font-weight:600">${c.nome}</td>
+      <td style="color:var(--muted)">${qtd} produto${qtd !== 1 ? 's' : ''}</td>
+      <td><div class="td-actions">
+        <button class="btn-icon btn-edit" onclick="editCategoria(${c.id})">✏️ Renomear</button>
+        <button class="btn-icon btn-delete" onclick="deleteCategoria(${c.id})">🗑 Excluir</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function saveCategoria() {
+  const nome = document.getElementById('catNome').value.trim();
+  if (!nome) { showToast('⚠️ Digite o nome da categoria.'); return; }
+  try {
+    const [row] = await sbInsert('categorias_produtos', { nome, ativo: true, ordem: categorias.length + 1 });
+    categorias.push(row);
+    document.getElementById('catNome').value = '';
+    renderCategoriasTable();
+    populaCategoriaSelect();
+    showToast('✅ Categoria criada!');
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+async function editCategoria(id) {
+  const c = categorias.find(c => c.id === id);
+  if (!c) return;
+  const novoNome = prompt('Novo nome da categoria:', c.nome);
+  if (!novoNome || !novoNome.trim() || novoNome.trim() === c.nome) return;
+  try {
+    await sbUpdate('categorias_produtos', `id=eq.${id}`, { nome: novoNome.trim() });
+    c.nome = novoNome.trim();
+    renderCategoriasTable();
+    populaCategoriaSelect();
+    renderProdutosTable();
+    showToast('✅ Categoria atualizada!');
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+async function deleteCategoria(id) {
+  const qtd = produtos.filter(p => p.categoria_id === id).length;
+  if (qtd > 0) { showToast('⚠️ Mova ou exclua os produtos dessa categoria antes.'); return; }
+  if (!confirm('Excluir esta categoria?')) return;
+  try {
+    await sbDelete('categorias_produtos', `id=eq.${id}`);
+    categorias = categorias.filter(c => c.id !== id);
+    renderCategoriasTable();
+    populaCategoriaSelect();
+    showToast('🗑 Categoria removida.');
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+/* ══ PRODUTOS ══════════════════════════════════════ */
+async function loadProdutos() {
+  produtos = await sbGet('produtos', '', 'ordem');
+}
+
+function renderProdutosTable() {
+  const tbody = document.getElementById('produtosTable');
+  if (!produtos.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">📦</div>Nenhum produto cadastrado.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = produtos.map(p => {
+    const cat = categorias.find(c => c.id === p.categoria_id);
+    return `
+    <tr style="${p.ativo ? '' : 'opacity:.45'}">
+      <td>${p.imagem_url ? `<img class="thumb" src="${p.imagem_url}" alt="${p.nome}">` : '<div class="thumb-empty">📦</div>'}</td>
+      <td style="font-weight:600">${p.nome}${!p.ativo ? ' <span style="font-size:.7rem;color:var(--muted)">(oculto)</span>' : ''}</td>
+      <td style="color:var(--muted)">${cat ? cat.nome : '—'}</td>
+      <td style="color:var(--brass);font-weight:700">R$ ${fmt(p.preco)}</td>
+      <td style="color:${p.estoque > 0 ? 'var(--muted)' : '#f87171'}">${p.estoque > 0 ? p.estoque : 'Esgotado'}</td>
+      <td><div class="td-actions">
+        <button class="btn-icon btn-edit" onclick="editProduto(${p.id})">✏️ Editar</button>
+        <button class="btn-icon btn-delete" onclick="deleteProduto(${p.id})">🗑 Excluir</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function previewProdutoImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  selectedProdutoFile = file;
+  const url = URL.createObjectURL(file);
+  document.getElementById('pImgPreview').src = url;
+  document.getElementById('pImgPreviewWrap').style.display = 'block';
+  document.getElementById('pImgLabelText').textContent = file.name;
+}
+
+function clearProdutoImg() {
+  selectedProdutoFile = null;
+  document.getElementById('pImgFile').value = '';
+  document.getElementById('pImgPreview').src = '';
+  document.getElementById('pImgPreviewWrap').style.display = 'none';
+  document.getElementById('pImgLabelText').textContent = 'Escolher imagem';
+}
+
+async function uploadProdutoImg() {
+  if (!selectedProdutoFile) return null;
+  const token = sessionStorage.getItem('barb_token');
+  const ext   = selectedProdutoFile.name.split('.').pop();
+  const path  = `${Date.now()}.${ext}`;
+  const res = await fetch(`${SB_URL}/storage/v1/object/produtos/${path}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${token || SB_KEY}`,
+      'Content-Type': selectedProdutoFile.type,
+      'x-upsert': 'true'
+    },
+    body: selectedProdutoFile
+  });
+  if (!res.ok) throw new Error('Erro no upload da imagem.');
+  return `${SB_URL}/storage/v1/object/public/produtos/${path}`;
+}
+
+async function saveProduto() {
+  const nome        = document.getElementById('pNome').value.trim();
+  const categoriaId = document.getElementById('pCategoria').value;
+  const preco       = parseFloat(document.getElementById('pPreco').value);
+  const precoAntigoRaw = document.getElementById('pPrecoAntigo').value;
+  const precoAntigo = precoAntigoRaw ? parseFloat(precoAntigoRaw) : null;
+  const estoque     = parseInt(document.getElementById('pEstoque').value);
+  const badge       = document.getElementById('pBadge').value || null;
+  const ativo       = document.getElementById('pAtivo').checked;
+
+  if (!nome || !categoriaId || !preco || isNaN(estoque)) { showToast('⚠️ Preencha nome, categoria, preço e estoque.'); return; }
+
+  const btn = document.querySelector('#produtoForm .btn-primary');
+  btn.disabled = true; btn.textContent = '⏳ Salvando...';
+
+  try {
+    let imagemUrl = editingProdutoId ? (produtos.find(p => p.id === editingProdutoId)?.imagem_url || null) : null;
+    if (selectedProdutoFile) imagemUrl = await uploadProdutoImg();
+
+    const payload = {
+      nome, categoria_id: Number(categoriaId), preco,
+      preco_antigo: precoAntigo, estoque, badge, ativo, imagem_url: imagemUrl
+    };
+
+    if (editingProdutoId) {
+      await sbUpdate('produtos', `id=eq.${editingProdutoId}`, payload);
+      const idx = produtos.findIndex(p => p.id === editingProdutoId);
+      if (idx > -1) produtos[idx] = { ...produtos[idx], ...payload };
+      editingProdutoId = null;
+    } else {
+      const [row] = await sbInsert('produtos', { ...payload, ordem: produtos.length + 1 });
+      produtos.push(row);
+    }
+    clearProdutoForm();
+    renderProdutosTable();
+    renderCategoriasTable();
+    showToast('✅ Produto salvo!');
+  } catch(e) {
+    showToast('❌ Erro: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Salvar produto';
+  }
+}
+
+function editProduto(id) {
+  const p = produtos.find(p => p.id === id);
+  if (!p) return;
+  editingProdutoId = id;
+  document.getElementById('pNome').value = p.nome;
+  document.getElementById('pCategoria').value = p.categoria_id;
+  document.getElementById('pPreco').value = p.preco;
+  document.getElementById('pPrecoAntigo').value = p.preco_antigo || '';
+  document.getElementById('pEstoque').value = p.estoque;
+  document.getElementById('pBadge').value = p.badge || '';
+  document.getElementById('pAtivo').checked = p.ativo;
+  clearProdutoImg();
+  if (p.imagem_url) {
+    document.getElementById('pImgPreview').src = p.imagem_url;
+    document.getElementById('pImgPreviewWrap').style.display = 'block';
+  }
+  document.querySelector('#produtoForm .btn-primary').textContent = '💾 Atualizar produto';
+  document.getElementById('produtoForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteProduto(id) {
+  if (!confirm('Excluir este produto?')) return;
+  try {
+    await sbDelete('produtos', `id=eq.${id}`);
+    produtos = produtos.filter(p => p.id !== id);
+    renderProdutosTable();
+    renderCategoriasTable();
+    showToast('🗑 Produto removido.');
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+function clearProdutoForm() {
+  editingProdutoId = null;
+  ['pNome','pPreco','pPrecoAntigo','pEstoque'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pBadge').value = '';
+  document.getElementById('pAtivo').checked = true;
+  clearProdutoImg();
+  document.querySelector('#produtoForm .btn-primary').textContent = '💾 Salvar produto';
 }
 
 /* ══ AGENDAMENTOS ══════════════════════════════════ */
