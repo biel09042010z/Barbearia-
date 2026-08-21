@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Barbearia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brass:      #c9a227;
+      --brass-dark: #7d611a;
+      --brass-glow: rgba(201,162,39,.15);
+      --bg:         #0d0c0b;
+      --surface:    #161311;
+      --card:       #1c1815;
+      --border:     #2c2620;
+      --text:       #f3ece1;
+      --muted:      #b3a692;
+      --faint:      #7a6f5f;
+      --green:      #4ade80;
+      --yellow:     #facc15;
+      --r:          10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── LOGIN ──────────────────────────────────────── */
+    #loginScreen {
+      min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 24px;
+      background: radial-gradient(ellipse at 60% 40%, rgba(201,162,39,.07) 0%, transparent 70%);
+    }
+    .login-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 32px;
+      width: 100%; max-width: 380px; text-align: center;
+    }
+    .login-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--brass-glow); border: 1px solid var(--brass);
+      display: grid; place-items: center; margin: 0 auto 20px; font-size: 1.5rem;
+    }
+    .login-title {
+      font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 900;
+      margin-bottom: 6px; letter-spacing: .01em;
+    }
+    .login-title em { color: var(--brass); font-style: italic; font-weight: 700; }
+    .login-sub { font-size: .85rem; color: var(--muted); margin-bottom: 28px; }
+    .login-input {
+      width: 100%; background: var(--card); border: 1px solid var(--border);
+      color: var(--text); border-radius: var(--r);
+      padding: 13px 16px; font-size: .95rem; outline: none;
+      margin-bottom: 10px; transition: border-color .2s; font-family: inherit;
+    }
+    .login-input:focus { border-color: var(--brass); }
+    .login-input::placeholder { color: var(--faint); }
+    .login-error { color: #f87171; font-size: .8rem; margin-bottom: 12px; min-height: 18px; }
+    .btn-login {
+      width: 100%; background: var(--brass); color: #141210;
+      border: none; border-radius: var(--r);
+      padding: 14px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background .2s; font-family: inherit;
+    }
+    .btn-login:hover { background: #e3bd3c; }
+
+    /* ── ADMIN SHELL ────────────────────────────────── */
+    #adminScreen { display: none; flex-direction: column; min-height: 100dvh; }
+
+    /* ── TOPBAR ─────────────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,12,11,.94); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      height: 58px; padding: 0 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-logo {
+      font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 900;
+      display: flex; align-items: center; gap: 10px; letter-spacing: .01em;
+    }
+    .topbar-logo em { color: var(--brass); font-style: italic; font-weight: 700; }
+    .topbar-badge {
+      background: var(--brass-glow); border: 1px solid var(--brass);
+      color: var(--brass); font-size: .65rem; font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace; letter-spacing: .06em;
+      border-radius: 50px; padding: 2px 10px; margin-left: 4px;
+    }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+    .btn-back, .btn-logout {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); border-radius: var(--r);
+      padding: 0 14px; height: 36px; font-size: .8rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: background .2s; text-decoration: none; white-space: nowrap; font-family: inherit;
+    }
+    .btn-back:hover, .btn-logout:hover { background: var(--border); }
+    .btn-logout { color: #f87171; border-color: rgba(248,113,113,.3); }
+    .btn-logout:hover { background: rgba(248,113,113,.1); }
+
+    /* ── TABS ───────────────────────────────────────── */
+    .tabs-bar {
+      display: flex; gap: 4px; overflow-x: auto;
+      padding: 16px 20px 0; border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+    .tabs-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      color: var(--muted); padding: 10px 18px; font-size: .85rem; font-weight: 700;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      transition: color .2s, border-color .2s; font-family: inherit;
+    }
+    .tab-btn.active { color: var(--brass); border-bottom-color: var(--brass); }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
+    /* ── CONTENT ────────────────────────────────────── */
+    .content { flex: 1; padding: 28px 20px 100px; max-width: 860px; margin: 0 auto; width: 100%; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── SECTION TITLE ──────────────────────────────── */
+    .section-title {
+      font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: .01em;
+    }
+    .section-title em { color: var(--brass); font-style: italic; }
+
+    /* ── FORM CARD ──────────────────────────────────── */
+    .form-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .form-card .full { grid-column: 1 / -1; }
+    .form-label { display: block; font-size: .75rem; font-weight: 700; color: var(--muted); margin-bottom: 5px; letter-spacing: .04em; text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px;
+      padding: 10px 12px; font-size: .88rem; outline: none;
+      transition: border-color .2s; font-family: inherit;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--brass); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--faint); }
+    .form-select option { background: var(--surface); }
+    .form-textarea { resize: vertical; min-height: 72px; }
+    .form-actions { grid-column: 1 / -1; display: flex; gap: 8px; }
+
+    /* ── BUTTONS ────────────────────────────────────── */
+    .btn-primary {
+      background: var(--brass); color: #141210; border: none;
+      border-radius: 8px; padding: 10px 20px;
+      font-size: .88rem; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: background .2s; font-family: inherit;
+    }
+    .btn-primary:hover { background: #e3bd3c; }
+    .btn-ghost {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px; padding: 10px 16px;
+      font-size: .88rem; font-weight: 600; cursor: pointer;
+      transition: background .2s; font-family: inherit;
+    }
+    .btn-ghost:hover { background: var(--border); color: var(--text); }
+    .btn-icon {
+      background: none; border: none; cursor: pointer;
+      font-size: .82rem; font-weight: 600;
+      transition: color .2s; padding: 4px 8px; border-radius: 6px; font-family: inherit;
+    }
+    .btn-edit { color: var(--brass); }
+    .btn-delete { color: #f87171; }
+    .btn-edit:hover { background: var(--brass-glow); }
+    .btn-delete:hover { background: rgba(248,113,113,.1); }
+
+    /* ── TABLE ──────────────────────────────────────── */
+    .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    th { text-align: left; padding: 12px 16px; font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--surface); font-family: 'IBM Plex Mono', monospace; }
+    td { padding: 12px 16px; border-top: 1px solid var(--border); vertical-align: middle; }
+    .thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
+    .thumb-empty { width: 44px; height: 44px; border-radius: 8px; background: var(--surface); display: grid; place-items: center; font-size: 1.2rem; }
+    .td-actions { display: flex; gap: 4px; }
+
+    /* ── IMAGE UPLOAD ───────────────────────────────── */
+    .upload-box {
+      width: 100%; height: auto; border-radius: var(--r);
+      border: 1.5px dashed var(--border); background: var(--surface);
+      display: flex; flex-direction: row; align-items: center;
+      padding: 12px 16px; gap: 10px; cursor: pointer;
+      font-size: .88rem; color: var(--muted);
+      transition: border-color .2s, color .2s;
+    }
+    .upload-box:hover { border-color: var(--brass); color: var(--brass); }
+    .upload-box span { font-size: 1.3rem; }
+    input[type="file"] { display: none; }
+
+    /* ── AGENDAMENTOS ───────────────────────────────── */
+    .agendamentos-list { display: flex; flex-direction: column; gap: 12px; }
+    .agend-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .agend-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+    .agend-num { font-weight: 700; font-size: .92rem; }
+    .agend-meta { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+    .agend-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+    .agend-servico { font-weight: 700; color: var(--brass); font-size: .92rem; }
+    .status-select {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); border-radius: 50px; padding: 5px 12px;
+      font-size: .78rem; font-weight: 600; outline: none; cursor: pointer; font-family: inherit;
+    }
+    .status-select:focus { border-color: var(--brass); }
+
+    /* ── GALERIA ────────────────────────────────────── */
+    .galeria-grid-admin { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .galeria-item {
+      position: relative; aspect-ratio: 1; border-radius: 10px;
+      overflow: hidden; border: 1px solid var(--border); background: var(--surface);
+    }
+    .galeria-item img { width: 100%; height: 100%; object-fit: cover; }
+    .galeria-item-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(13,12,11,.82); color: var(--muted);
+      font-size: .65rem; padding: 4px 6px; font-family: 'IBM Plex Mono', monospace;
+    }
+    .galeria-item-del {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,.75); color: #fff; border: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      font-size: .7rem; display: grid; place-items: center; cursor: pointer;
+    }
+
+    /* ── SAVE BAR ───────────────────────────────────── */
+    .save-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: flex-end; gap: 14px;
+    }
+    .save-hint { font-size: .8rem; color: var(--muted); }
+    .btn-save {
+      background: var(--brass); color: #141210; border: none;
+      border-radius: var(--r); padding: 12px 28px;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: background .2s; font-family: inherit;
+    }
+    .btn-save:hover { background: #e3bd3c; }
+    .btn-save:disabled { opacity: .6; cursor: not-allowed; }
+    .save-bar-spacer { height: 72px; }
+
+    /* ── TOAST ──────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 50px; padding: 10px 20px;
+      font-size: .85rem; font-weight: 600;
+      z-index: 200; white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      transition: transform .3s; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── EMPTY STATE ────────────────────────────────── */
+    .empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: .9rem; }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* ── ADMIN FOOTER ───────────────────────────────── */
+    .admin-footer {
+      text-align: center; padding: 18px 20px 24px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      color: var(--faint); font-size: .75rem;
+      font-family: 'IBM Plex Mono', monospace; letter-spacing: .04em;
+    }
+    .admin-footer a {
+      color: var(--faint); text-decoration: none; display: inline-flex;
+      align-items: center; gap: 5px; transition: color .2s;
+    }
+    .admin-footer a:hover { color: var(--muted); }
+    .admin-footer svg { width: 13px; height: 13px; }
+
+    /* ── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 500px) {
+      .form-card { grid-template-columns: 1fr; }
+      .form-card .full { grid-column: 1; }
+      .form-actions { grid-column: 1; }
+      .save-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-icon">✂️</div>
+    <div class="login-title">Área <em>Restrita</em></div>
+    <p class="login-sub">Acesse com seu e-mail e senha.</p>
+    <input class="login-input" type="email" id="emailInput" placeholder="E-mail"
+      onkeydown="if(event.key==='Enter') document.getElementById('pwdInput').focus()" />
+    <input class="login-input" type="password" id="pwdInput" placeholder="Senha"
+      onkeydown="if(event.key==='Enter') tryLogin()" />
+    <div class="login-error" id="loginError"></div>
+    <button class="btn-login" id="loginBtn" onclick="tryLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- ══ ADMIN ═════════════════════════════════════════ -->
+<div id="adminScreen">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      Seu <em>Nome</em>
+      <span class="topbar-badge">ADMIN</span>
+    </div>
+    <div class="topbar-actions">
+      <a href="index.html" class="btn-back">← Ver site</a>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <nav class="tabs-bar" aria-label="Seções do painel">
+    <button class="tab-btn active" onclick="switchTab('servicos', this)">✂️ Serviços</button>
+    <button class="tab-btn" onclick="switchTab('galeria', this)">🖼️ Galeria</button>
+    <button class="tab-btn" onclick="switchTab('agendamentos', this)">📅 Agendamentos</button>
+  </nav>
+
+  <main class="content">
+
+    <!-- ─── SERVIÇOS ──────────────────────────────── -->
+    <section class="tab-panel active" id="tab-servicos">
+      <h2 class="section-title">✂️ Serviços & <em>Preços</em></h2>
+
+      <div class="form-card" id="servicoForm">
+        <div>
+          <label class="form-label">Nome *</label>
+          <input class="form-input" id="sNome" placeholder="Ex: Corte + Barba" />
+        </div>
+        <div>
+          <label class="form-label">Preço (R$) *</label>
+          <input class="form-input" id="sPreco" type="number" step="0.01" placeholder="0,00" />
+        </div>
+        <div>
+          <label class="form-label">Duração (min) *</label>
+          <input class="form-input" id="sDuracao" type="number" placeholder="40" />
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding-top:18px">
+          <input type="checkbox" id="sDestaque" style="width:18px;height:18px;accent-color:var(--brass);cursor:pointer" />
+          <label for="sDestaque" class="form-label" style="margin:0;cursor:pointer;text-transform:none;letter-spacing:0;font-size:.85rem;color:var(--muted)">Destacar serviço</label>
+        </div>
+        <div class="full">
+          <label class="form-label">Descrição *</label>
+          <textarea class="form-textarea" id="sDesc" placeholder="Descreva o serviço..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="saveServico()">💾 Salvar serviço</button>
+          <button class="btn-ghost" onclick="clearServicoForm()">Limpar</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Preço</th>
+              <th>Duração</th>
+              <th>Destaque</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="servicosTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── GALERIA ───────────────────────────────── -->
+    <section class="tab-panel" id="tab-galeria">
+      <h2 class="section-title">🖼️ <em>Galeria</em> de Fotos</h2>
+
+      <div class="form-card" style="grid-template-columns:1fr">
+        <div>
+          <label class="form-label">Label da foto (opcional)</label>
+          <input class="form-input" id="gLabel" placeholder="Ex: Degradê navalhado" />
+        </div>
+        <div>
+          <label class="form-label">Texto alternativo (acessibilidade)</label>
+          <input class="form-input" id="gAlt" placeholder="Ex: Foto de corte degradê" />
+        </div>
+        <div>
+          <label class="form-label">Upload da imagem *</label>
+          <input type="file" id="gImgFile" accept="image/*" onchange="previewGaleriaImg(this)" />
+          <label for="gImgFile" class="upload-box">
+            <span>📷</span>
+            <span id="gImgLabelText">Escolher imagem</span>
+          </label>
+          <div id="gImgPreviewWrap" style="display:none;margin-top:10px;position:relative;width:100%;max-height:180px;border-radius:var(--r);overflow:hidden">
+            <img id="gImgPreview" src="" alt="Preview" style="width:100%;max-height:180px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border)" />
+            <button onclick="clearGaleriaImg()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;display:grid;place-items:center">✕</button>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="addGaleriaFoto()">📤 Enviar foto</button>
+          <button class="btn-ghost" onclick="clearGaleriaForm()">Limpar</button>
+        </div>
+      </div>
+
+      <div id="galeriaGrid" class="galeria-grid-admin"></div>
+    </section>
+
+    <!-- ─── AGENDAMENTOS ──────────────────────────── -->
+    <section class="tab-panel" id="tab-agendamentos">
+      <h2 class="section-title">📅 <em>Agendamentos</em></h2>
+      <div id="agendamentosList"></div>
+    </section>
+
+  </main>
+
+  <div class="save-bar-spacer"></div>
+
+  <!-- ADMIN FOOTER com cadeado -->
+  <footer class="admin-footer">
+    <a href="index.html" aria-label="Voltar ao site">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Painel seguro — Barbearia
+    </a>
+  </footer>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ SUPABASE ══════════════════════════════════════ */
+const SB_URL = 'https://zfzscfabjpiqnudcggfi.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmenNjZmFianBpcW51ZGNnZ2ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5ODcyMTQsImV4cCI6MjEwMjU2MzIxNH0.xqkXptWCjIm5CNW5O1OlXMzZu0gTGGNHUSiRlhh5JOM';
+const HDR = {
+  'apikey': SB_KEY,
+  'Authorization': `Bearer ${SB_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+async function sbGet(table, filter='', order='') {
+  const qs = [filter, order ? 'order='+order : ''].filter(Boolean).join('&');
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${qs}`, { headers: HDR });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbInsert(table, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, { method:'POST', headers: HDR, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbUpdate(table, filter, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, { method:'PATCH', headers: HDR, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error(await r.text());
+}
+async function sbDelete(table, filter) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, { method:'DELETE', headers: HDR });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+/* ══ STATE ═════════════════════════════════════════ */
+let servicos = [];
+let galeriaFotos = [];
+let editingServicoId = null;
+let selectedGaleriaFile = null;
+
+/* ══ LOGIN — Supabase Auth ════════════════════════ */
+async function tryLogin() {
+  const email = document.getElementById('emailInput').value.trim();
+  const pwd   = document.getElementById('pwdInput').value;
+  const errEl = document.getElementById('loginError');
+  const btn   = document.getElementById('loginBtn');
+
+  if (!email || !pwd) { errEl.textContent = 'Preencha e-mail e senha.'; return; }
+
+  btn.disabled = true; btn.textContent = '⏳ Entrando...';
+  errEl.textContent = '';
+
+  try {
+    const res = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pwd })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || 'Credenciais inválidas.');
+
+    sessionStorage.setItem('barb_token', data.access_token);
+    sessionStorage.setItem('barb_user', data.user?.email || email);
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminScreen').style.display = 'flex';
+    init();
+  } catch(e) {
+    errEl.textContent = e.message;
+    document.getElementById('pwdInput').value = '';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+
+async function logout() {
+  const token = sessionStorage.getItem('barb_token');
+  if (token) {
+    await fetch(`${SB_URL}/auth/v1/logout`, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${token}` }
+    }).catch(() => {});
+  }
+  sessionStorage.removeItem('barb_token');
+  sessionStorage.removeItem('barb_user');
+  document.getElementById('adminScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('pwdInput').value = '';
+  document.getElementById('emailInput').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const token = sessionStorage.getItem('barb_token');
+  if (token) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminScreen').style.display = 'flex';
+    init();
+  }
+});
+
+/* ══ TABS ══════════════════════════════════════════ */
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'agendamentos') renderAgendamentos();
+  if (name === 'galeria') renderGaleriaGrid();
+}
+
+/* ══ INIT ══════════════════════════════════════════ */
+async function init() {
+  try {
+    await Promise.all([loadServicos(), loadGaleria()]);
+  } catch(e) {
+    showToast('⚠️ Erro ao carregar dados do Supabase.');
+  }
+}
+
+/* ══ SERVIÇOS ══════════════════════════════════════ */
+async function loadServicos() {
+  const data = await sbGet('servicos', '', 'ordem');
+  servicos = data;
+  renderServicosTable();
+}
+
+function renderServicosTable() {
+  const tbody = document.getElementById('servicosTable');
+  if (!servicos.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">✂️</div>Nenhum serviço cadastrado.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = servicos.map(s => `
+    <tr style="${s.ativo ? '' : 'opacity:.45'}">
+      <td style="font-weight:600">${s.nome}${!s.ativo ? ' <span style="font-size:.7rem;color:var(--muted)">(inativo)</span>' : ''}</td>
+      <td style="color:var(--brass);font-weight:700">R$ ${fmt(s.preco)}</td>
+      <td style="color:var(--muted)">${s.duracao_min} min</td>
+      <td>${s.destaque ? '⭐' : '—'}</td>
+      <td><div class="td-actions">
+        <button class="btn-icon btn-edit" onclick="editServico(${s.id})">✏️ Editar</button>
+        <button class="btn-icon btn-delete" onclick="deleteServico(${s.id})">🗑 Excluir</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+async function saveServico() {
+  const nome     = document.getElementById('sNome').value.trim();
+  const preco    = parseFloat(document.getElementById('sPreco').value);
+  const duracao  = parseInt(document.getElementById('sDuracao').value);
+  const desc     = document.getElementById('sDesc').value.trim();
+  const destaque = document.getElementById('sDestaque').checked;
+
+  if (!nome || !preco || !duracao || !desc) { showToast('⚠️ Preencha todos os campos obrigatórios.'); return; }
+
+  const btn = document.querySelector('#servicoForm .btn-primary');
+  btn.disabled = true; btn.textContent = '⏳ Salvando...';
+
+  try {
+    const payload = { nome, preco, duracao_min: duracao, descricao: desc, destaque };
+    if (editingServicoId) {
+      await sbUpdate('servicos', `id=eq.${editingServicoId}`, payload);
+      const idx = servicos.findIndex(s => s.id === editingServicoId);
+      if (idx > -1) servicos[idx] = { ...servicos[idx], ...payload };
+      editingServicoId = null;
+    } else {
+      const [row] = await sbInsert('servicos', { ...payload, ativo: true, ordem: servicos.length + 1 });
+      servicos.push(row);
+    }
+    clearServicoForm();
+    renderServicosTable();
+    showToast('✅ Serviço salvo!');
+  } catch(e) {
+    showToast('❌ Erro: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Salvar serviço';
+  }
+}
+
+function editServico(id) {
+  const s = servicos.find(s => s.id === id);
+  if (!s) return;
+  editingServicoId = id;
+  document.getElementById('sNome').value    = s.nome;
+  document.getElementById('sPreco').value   = s.preco;
+  document.getElementById('sDuracao').value = s.duracao_min;
+  document.getElementById('sDesc').value    = s.descricao || '';
+  document.getElementById('sDestaque').checked = s.destaque || false;
+  document.querySelector('#servicoForm .btn-primary').textContent = '💾 Atualizar serviço';
+  document.getElementById('servicoForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteServico(id) {
+  if (!confirm('Excluir este serviço?')) return;
+  try {
+    await sbDelete('servicos', `id=eq.${id}`);
+    servicos = servicos.filter(s => s.id !== id);
+    renderServicosTable();
+    showToast('🗑 Serviço removido.');
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+function clearServicoForm() {
+  editingServicoId = null;
+  ['sNome','sPreco','sDuracao','sDesc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sDestaque').checked = false;
+  document.querySelector('#servicoForm .btn-primary').textContent = '💾 Salvar serviço';
+}
+
+/* ══ GALERIA ═══════════════════════════════════════ */
+async function loadGaleria() {
+  const data = await sbGet('galeria', '', 'ordem');
+  galeriaFotos = data;
+}
+
+function renderGaleriaGrid() {
+  const grid = document.getElementById('galeriaGrid');
+  if (!galeriaFotos.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">🖼️</div>Nenhuma foto na galeria.</div>`;
+    return;
+  }
+  grid.innerHTML = galeriaFotos.map(f => `
+    <div class="galeria-item">
+      <img src="${f.url}" alt="${f.alt || f.label || 'Foto'}" onerror="this.style.opacity='.3'" />
+      <div class="galeria-item-label">${f.label || '—'}</div>
+      <button class="galeria-item-del" onclick="deleteFoto(${f.id})" title="Remover foto">✕</button>
+    </div>
+  `).join('');
+}
+
+function previewGaleriaImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  selectedGaleriaFile = file;
+  const url = URL.createObjectURL(file);
+  document.getElementById('gImgPreview').src = url;
+  document.getElementById('gImgPreviewWrap').style.display = 'block';
+  document.getElementById('gImgLabelText').textContent = file.name;
+}
+
+function clearGaleriaImg() {
+  selectedGaleriaFile = null;
+  document.getElementById('gImgFile').value = '';
+  document.getElementById('gImgPreview').src = '';
+  document.getElementById('gImgPreviewWrap').style.display = 'none';
+  document.getElementById('gImgLabelText').textContent = 'Escolher imagem';
+}
+
+function clearGaleriaForm() {
+  clearGaleriaImg();
+  document.getElementById('gLabel').value = '';
+  document.getElementById('gAlt').value = '';
+}
+
+async function uploadGaleriaImg() {
+  if (!selectedGaleriaFile) return null;
+  const token = sessionStorage.getItem('barb_token');
+  const ext   = selectedGaleriaFile.name.split('.').pop();
+  const path  = `${Date.now()}.${ext}`;
+
+  const res = await fetch(`${SB_URL}/storage/v1/object/galeria/${path}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${token || SB_KEY}`,
+      'Content-Type': selectedGaleriaFile.type,
+      'x-upsert': 'true'
+    },
+    body: selectedGaleriaFile
+  });
+  if (!res.ok) throw new Error('Erro no upload da imagem.');
+  return `${SB_URL}/storage/v1/object/public/galeria/${path}`;
+}
+
+async function addGaleriaFoto() {
+  if (!selectedGaleriaFile) { showToast('⚠️ Selecione uma imagem.'); return; }
+  const btn = document.querySelector('#tab-galeria .btn-primary');
+  btn.disabled = true; btn.textContent = '⏳ Enviando...';
+
+  try {
+    const url   = await uploadGaleriaImg();
+    const label = document.getElementById('gLabel').value.trim() || null;
+    const alt   = document.getElementById('gAlt').value.trim() || label || 'Foto da barbearia';
+    const [row] = await sbInsert('galeria', { url, label, alt, ordem: galeriaFotos.length + 1 });
+    galeriaFotos.push(row);
+    clearGaleriaForm();
+    renderGaleriaGrid();
+    showToast('✅ Foto adicionada!');
+  } catch(e) {
+    showToast('❌ Erro: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '📤 Enviar foto';
+  }
+}
+
+async function deleteFoto(id) {
+  if (!confirm('Remover esta foto da galeria?')) return;
+  try {
+    await sbDelete('galeria', `id=eq.${id}`);
+    galeriaFotos = galeriaFotos.filter(f => f.id !== id);
+    renderGaleriaGrid();
+    showToast('🗑 Foto removida.');
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+/* ══ AGENDAMENTOS ══════════════════════════════════ */
+async function renderAgendamentos() {
+  const el = document.getElementById('agendamentosList');
+  el.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div>Carregando agendamentos...</div>`;
+  try {
+    const data = await sbGet('agendamentos', '', 'data_hora.desc');
+    if (!data.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">📅</div>Nenhum agendamento ainda.</div>`;
+      return;
+    }
+    el.innerHTML = `<div class="agendamentos-list">` + data.map(a => {
+      const dataFmt = new Date(a.data_hora).toLocaleString('pt-BR', { dateStyle:'short', timeStyle:'short' });
+      const serv = servicos.find(s => s.id === a.servico_id);
+      return `
+        <div class="agend-card">
+          <div class="agend-head">
+            <div>
+              <div class="agend-num">👤 ${a.cliente_nome}</div>
+              <div class="agend-meta">📞 ${a.cliente_whatsapp} · 📅 ${dataFmt}</div>
+              ${a.observacao ? `<div class="agend-meta" style="margin-top:2px">📝 ${a.observacao}</div>` : ''}
+            </div>
+            <select class="status-select" onchange="updateAgendStatus(${a.id}, this.value)">
+              ${['pendente','confirmado','cancelado','concluido'].map(s =>
+                `<option value="${s}" ${a.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+              ).join('')}
+            </select>
+          </div>
+          <div class="agend-footer">
+            <span class="agend-servico">${serv ? `${serv.nome} — R$ ${fmt(serv.preco)}` : '—'}</span>
+            <button class="btn-icon btn-delete" onclick="deleteAgend(${a.id})">🗑 Remover</button>
+          </div>
+        </div>`;
+    }).join('') + `</div>`;
+  } catch(e) {
+    el.innerHTML = `<div class="empty">❌ Erro ao carregar agendamentos.</div>`;
+  }
+}
+
+async function updateAgendStatus(id, status) {
+  try {
+    await sbUpdate('agendamentos', `id=eq.${id}`, { status });
+    showToast('✅ Status atualizado!');
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+async function deleteAgend(id) {
+  if (!confirm('Remover este agendamento?')) return;
+  try {
+    await sbDelete('agendamentos', `id=eq.${id}`);
+    renderAgendamentos();
+    showToast('🗑 Agendamento removido.');
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
+}
+
+/* ══ UTILS ═════════════════════════════════════════ */
+function fmt(n) { return parseFloat(n).toFixed(2).replace('.', ','); }
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
