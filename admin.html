@@ -670,10 +670,15 @@ function switchTab(name, btn) {
 
 /* ══ INIT ══════════════════════════════════════════ */
 async function init() {
-  try {
-    await Promise.all([loadServicos(), loadGaleria(), loadCategorias(), loadProdutos()]);
-  } catch(e) {
-    showToast('⚠️ Erro ao carregar dados do Supabase.');
+  const loads = [
+    { name: 'servicos', fn: loadServicos },
+    { name: 'galeria', fn: loadGaleria },
+    { name: 'categorias', fn: loadCategorias },
+    { name: 'produtos', fn: loadProdutos },
+  ];
+  for (const { name, fn } of loads) {
+    try { await fn(); }
+    catch(e) { showToast('Erro em "' + name + '": ' + e.message, true); }
   }
 }
 
