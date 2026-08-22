@@ -255,15 +255,16 @@
       position: fixed; bottom: 90px; left: 50%;
       transform: translateX(-50%) translateY(60px);
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 12px 20px;
+      border-radius: 14px; padding: 12px 18px;
       font-size: .85rem; font-weight: 600;
-      z-index: 200; white-space: normal;
-      max-width: min(88vw, 400px); text-align: center; line-height: 1.4;
+      z-index: 200;
+      max-width: min(90vw, 420px);
+      white-space: pre-line;
       box-shadow: 0 8px 24px rgba(0,0,0,.4);
       transition: transform .3s; pointer-events: none;
     }
+    .toast.error { border-color: #f87171; color: #f87171; }
     .toast.show { transform: translateX(-50%) translateY(0); }
-    .toast.toast-error { border-color: #f87171; background: #2a1515; color: #fca5a5; }
 
     /* ── EMPTY STATE ────────────────────────────────── */
     .empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: .9rem; }
@@ -541,49 +542,24 @@ const HDR = {
   'Prefer': 'return=representation'
 };
 
-function parseSupabaseError(text) {
-  try {
-    const obj = JSON.parse(text);
-    // PostgREST error shape: { message, details, hint, code }
-    // Storage error shape: { error, message, statusCode }
-    const msg = obj.message || obj.error || text;
-    const hint = obj.hint ? ` (${obj.hint})` : '';
-    // Translate common RLS / permission errors to Portuguese
-    if (obj.code === '42501' || (msg && msg.includes('policy'))) {
-      return 'Permissão negada. Verifique as políticas RLS no Supabase.';
-    }
-    if (obj.code === '23505') return 'Registro duplicado.';
-    if (obj.code === '23503') return 'Referência inválida (chave estrangeira).';
-    if (obj.statusCode === '403' || obj.statusCode === 403) {
-      return 'Acesso negado ao storage. Verifique as políticas do bucket.';
-    }
-    return msg + hint;
-  } catch {
-    return text;
-  }
-}
-async function sbError(r) {
-  const text = await r.text();
-  throw new Error(parseSupabaseError(text));
-}
 async function sbGet(table, filter='', order='') {
   const qs = [filter, order ? 'order='+order : ''].filter(Boolean).join('&');
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${qs}`, { headers: HDR });
-  if (!r.ok) await sbError(r);
+  if (!r.ok) throw new Error(parseSbError(await r.text()));
   return r.json();
 }
 async function sbInsert(table, body) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}`, { method:'POST', headers: HDR, body: JSON.stringify(body) });
-  if (!r.ok) await sbError(r);
+  if (!r.ok) throw new Error(parseSbError(await r.text()));
   return r.json();
 }
 async function sbUpdate(table, filter, body) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, { method:'PATCH', headers: HDR, body: JSON.stringify(body) });
-  if (!r.ok) await sbError(r);
+  if (!r.ok) throw new Error(parseSbError(await r.text()));
 }
 async function sbDelete(table, filter) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, { method:'DELETE', headers: HDR });
-  if (!r.ok) await sbError(r);
+  if (!r.ok) throw new Error(parseSbError(await r.text()));
 }
 
 /* ══ STATE ═════════════════════════════════════════ */
@@ -670,15 +646,10 @@ function switchTab(name, btn) {
 
 /* ══ INIT ══════════════════════════════════════════ */
 async function init() {
-  const loads = [
-    { name: 'servicos', fn: loadServicos },
-    { name: 'galeria', fn: loadGaleria },
-    { name: 'categorias', fn: loadCategorias },
-    { name: 'produtos', fn: loadProdutos },
-  ];
-  for (const { name, fn } of loads) {
-    try { await fn(); }
-    catch(e) { showToast('Erro em "' + name + '": ' + e.message, true); }
+  try {
+    await Promise.all([loadServicos(), loadGaleria(), loadCategorias(), loadProdutos()]);
+  } catch(e) {
+    showToast('⚠️ Erro ao carregar dados do Supabase.', true);
   }
 }
 
@@ -833,10 +804,7 @@ async function uploadGaleriaImg() {
     },
     body: selectedGaleriaFile
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error('Upload falhou: ' + parseSupabaseError(text));
-  }
+  if (!res.ok) throw new Error('Erro no upload da imagem.');
   return `${SB_URL}/storage/v1/object/public/galeria/${path}`;
 }
 
@@ -1008,10 +976,7 @@ async function uploadProdutoImg() {
     },
     body: selectedProdutoFile
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error('Upload falhou: ' + parseSupabaseError(text));
-  }
+  if (!res.ok) throw new Error('Erro no upload da imagem.');
   return `${SB_URL}/storage/v1/object/public/produtos/${path}`;
 }
 
@@ -1160,11 +1125,27 @@ let toastTimer;
 function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.classList.toggle('toast-error', isError);
+  t.classList.toggle('error', isError);
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.classList.remove('show', 'toast-error'); }, isError ? 5000 : 2600);
+  toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 2600);
 }
+
+// Transforma a resposta de erro do Supabase (JSON bruto) numa frase legível
+function parseSbError(raw) {
+  try {
+    const j = JSON.parse(raw);
+    if (j.message && j.message.includes('row-level security')) {
+      return 'Permissão negada pelo Supabase (política de segurança da tabela). Veja o arquivo supabase-loja.sql.';
+    }
+    return j.message || j.error_description || j.error || raw;
+  } catch {
+    return raw || 'Erro desconhecido.';
+  }
+}
+// Rede de segurança: qualquer erro que escapar dos try/catch também aparece na tela
+window.addEventListener('error', (e) => showToast('❌ ' + (e.message || 'Erro inesperado.'), true));
+window.addEventListener('unhandledrejection', (e) => showToast('❌ ' + (e.reason?.message || e.reason || 'Erro inesperado.'), true));
 </script>
 </body>
 </html>
