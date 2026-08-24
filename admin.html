@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — Invictus Barber Shop</title>
+  <title>Admin — Barbearia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
@@ -255,15 +255,12 @@
       position: fixed; bottom: 90px; left: 50%;
       transform: translateX(-50%) translateY(60px);
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 12px 18px;
+      border-radius: 50px; padding: 10px 20px;
       font-size: .85rem; font-weight: 600;
-      z-index: 200;
-      max-width: min(90vw, 420px);
-      white-space: pre-line;
+      z-index: 200; white-space: nowrap;
       box-shadow: 0 8px 24px rgba(0,0,0,.4);
       transition: transform .3s; pointer-events: none;
     }
-    .toast.error { border-color: #f87171; color: #f87171; }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── EMPTY STATE ────────────────────────────────── */
@@ -317,7 +314,7 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-logo">
-      Invictus <em>Barber Shop</em>
+      Seu <em>Nome</em>
       <span class="topbar-badge">ADMIN</span>
     </div>
     <div class="topbar-actions">
@@ -329,7 +326,6 @@
   <!-- TABS -->
   <nav class="tabs-bar" aria-label="Seções do painel">
     <button class="tab-btn active" onclick="switchTab('servicos', this)">✂️ Serviços</button>
-    <button class="tab-btn" onclick="switchTab('loja', this)">🛍️ Loja</button>
     <button class="tab-btn" onclick="switchTab('galeria', this)">🖼️ Galeria</button>
     <button class="tab-btn" onclick="switchTab('agendamentos', this)">📅 Agendamentos</button>
   </nav>
@@ -353,6 +349,20 @@
           <label class="form-label">Duração (min) *</label>
           <input class="form-input" id="sDuracao" type="number" placeholder="40" />
         </div>
+        <div>
+          <label class="form-label">Categoria *</label>
+          <select class="form-select" id="sCategoria">
+            <option value="">Selecione...</option>
+            <option>Corte de cabelo</option>
+            <option>Barba</option>
+            <option>Combos</option>
+            <option>Essenciais</option>
+            <option>Combos Premium</option>
+            <option>Tratamento e química</option>
+            <option>Acabamentos</option>
+            <option>Universitário</option>
+          </select>
+        </div>
         <div style="display:flex;align-items:center;gap:10px;padding-top:18px">
           <input type="checkbox" id="sDestaque" style="width:18px;height:18px;accent-color:var(--brass);cursor:pointer" />
           <label for="sDestaque" class="form-label" style="margin:0;cursor:pointer;text-transform:none;letter-spacing:0;font-size:.85rem;color:var(--muted)">Destacar serviço</label>
@@ -372,6 +382,7 @@
           <thead>
             <tr>
               <th>Nome</th>
+              <th>Categoria</th>
               <th>Preço</th>
               <th>Duração</th>
               <th>Destaque</th>
@@ -379,94 +390,6 @@
             </tr>
           </thead>
           <tbody id="servicosTable"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ─── LOJA (CATEGORIAS + PRODUTOS) ───────────── -->
-    <section class="tab-panel" id="tab-loja">
-      <h2 class="section-title">🏷️ <em>Categorias</em></h2>
-      <p style="color:var(--muted);font-size:.85rem;margin:-10px 0 16px;">Crie as categorias dos produtos que você vai vender (ex: Pomadas, Óleos, Acessórios). Pode renomear ou excluir quando quiser.</p>
-
-      <div class="form-card" style="grid-template-columns:1fr auto;">
-        <div>
-          <label class="form-label">Nome da categoria *</label>
-          <input class="form-input" id="catNome" placeholder="Ex: Pomadas" onkeydown="if(event.key==='Enter') saveCategoria()" />
-        </div>
-        <div class="form-actions" style="grid-column:auto;align-items:flex-end;padding-bottom:1px;">
-          <button class="btn-primary" onclick="saveCategoria()">💾 Salvar</button>
-        </div>
-      </div>
-
-      <div class="table-wrap" style="margin-bottom:28px;">
-        <table>
-          <thead><tr><th>Categoria</th><th>Produtos</th><th>Ações</th></tr></thead>
-          <tbody id="categoriasTable"></tbody>
-        </table>
-      </div>
-
-      <h2 class="section-title">📦 <em>Produtos</em></h2>
-
-      <div class="form-card" id="produtoForm">
-        <div>
-          <label class="form-label">Nome *</label>
-          <input class="form-input" id="pNome" placeholder="Ex: Pomada Modeladora" />
-        </div>
-        <div>
-          <label class="form-label">Categoria *</label>
-          <select class="form-select" id="pCategoria"></select>
-        </div>
-        <div>
-          <label class="form-label">Preço (R$) *</label>
-          <input class="form-input" id="pPreco" type="number" step="0.01" placeholder="0,00" />
-        </div>
-        <div>
-          <label class="form-label">Preço antigo (opcional)</label>
-          <input class="form-input" id="pPrecoAntigo" type="number" step="0.01" placeholder="0,00" />
-        </div>
-        <div>
-          <label class="form-label">Estoque *</label>
-          <input class="form-input" id="pEstoque" type="number" placeholder="0" />
-        </div>
-        <div>
-          <label class="form-label">Selo</label>
-          <select class="form-select" id="pBadge">
-            <option value="">Nenhum</option>
-            <option value="novo">Novo</option>
-            <option value="oferta">Oferta</option>
-            <option value="mais-vendido">Mais vendido</option>
-          </select>
-        </div>
-        <div class="full">
-          <label class="form-label">Imagem do produto (opcional)</label>
-          <input type="file" id="pImgFile" accept="image/*" onchange="previewProdutoImg(this)" />
-          <label for="pImgFile" class="upload-box">
-            <span>📷</span>
-            <span id="pImgLabelText">Escolher imagem</span>
-          </label>
-          <div id="pImgPreviewWrap" style="display:none;margin-top:10px;position:relative;width:100%;max-height:180px;border-radius:var(--r);overflow:hidden">
-            <img id="pImgPreview" src="" alt="Preview" style="width:100%;max-height:180px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border)" />
-            <button onclick="clearProdutoImg()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:.8rem;cursor:pointer;display:grid;place-items:center">✕</button>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding-top:6px;">
-          <input type="checkbox" id="pAtivo" checked style="width:18px;height:18px;accent-color:var(--brass);cursor:pointer" />
-          <label for="pAtivo" class="form-label" style="margin:0;cursor:pointer;text-transform:none;letter-spacing:0;font-size:.85rem;color:var(--muted)">Visível na loja</label>
-        </div>
-        <div class="form-actions">
-          <button class="btn-primary" onclick="saveProduto()">💾 Salvar produto</button>
-          <button class="btn-ghost" onclick="clearProdutoForm()">Limpar</button>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Foto</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="produtosTable"></tbody>
         </table>
       </div>
     </section>
@@ -545,32 +468,28 @@ const HDR = {
 async function sbGet(table, filter='', order='') {
   const qs = [filter, order ? 'order='+order : ''].filter(Boolean).join('&');
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${qs}`, { headers: HDR });
-  if (!r.ok) throw new Error(parseSbError(await r.text()));
+  if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 async function sbInsert(table, body) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}`, { method:'POST', headers: HDR, body: JSON.stringify(body) });
-  if (!r.ok) throw new Error(parseSbError(await r.text()));
+  if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 async function sbUpdate(table, filter, body) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, { method:'PATCH', headers: HDR, body: JSON.stringify(body) });
-  if (!r.ok) throw new Error(parseSbError(await r.text()));
+  if (!r.ok) throw new Error(await r.text());
 }
 async function sbDelete(table, filter) {
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, { method:'DELETE', headers: HDR });
-  if (!r.ok) throw new Error(parseSbError(await r.text()));
+  if (!r.ok) throw new Error(await r.text());
 }
 
 /* ══ STATE ═════════════════════════════════════════ */
 let servicos = [];
 let galeriaFotos = [];
-let categorias = [];
-let produtos = [];
 let editingServicoId = null;
-let editingProdutoId = null;
 let selectedGaleriaFile = null;
-let selectedProdutoFile = null;
 
 /* ══ LOGIN — Supabase Auth ════════════════════════ */
 async function tryLogin() {
@@ -641,15 +560,14 @@ function switchTab(name, btn) {
   btn.classList.add('active');
   if (name === 'agendamentos') renderAgendamentos();
   if (name === 'galeria') renderGaleriaGrid();
-  if (name === 'loja') { renderCategoriasTable(); renderProdutosTable(); }
 }
 
 /* ══ INIT ══════════════════════════════════════════ */
 async function init() {
   try {
-    await Promise.all([loadServicos(), loadGaleria(), loadCategorias(), loadProdutos()]);
+    await Promise.all([loadServicos(), loadGaleria()]);
   } catch(e) {
-    showToast('⚠️ Erro ao carregar dados do Supabase.', true);
+    showToast('⚠️ Erro ao carregar dados do Supabase.');
   }
 }
 
@@ -669,31 +587,33 @@ function renderServicosTable() {
   tbody.innerHTML = servicos.map(s => `
     <tr style="${s.ativo ? '' : 'opacity:.45'}">
       <td style="font-weight:600">${s.nome}${!s.ativo ? ' <span style="font-size:.7rem;color:var(--muted)">(inativo)</span>' : ''}</td>
+      <td style="color:var(--muted);font-size:.8rem">${s.categoria || '—'}</td>
       <td style="color:var(--brass);font-weight:700">R$ ${fmt(s.preco)}</td>
       <td style="color:var(--muted)">${s.duracao_min} min</td>
       <td>${s.destaque ? '⭐' : '—'}</td>
       <td><div class="td-actions">
-        <button class="btn-icon btn-edit" onclick="editServico(${s.id})">✏️ Editar</button>
-        <button class="btn-icon btn-delete" onclick="deleteServico(${s.id})">🗑 Excluir</button>
+        <button class="btn-icon btn-edit" onclick="editServico('${s.id}')">✏️ Editar</button>
+        <button class="btn-icon btn-delete" onclick="deleteServico('${s.id}')">🗑 Excluir</button>
       </div></td>
     </tr>
   `).join('');
 }
 
 async function saveServico() {
-  const nome     = document.getElementById('sNome').value.trim();
-  const preco    = parseFloat(document.getElementById('sPreco').value);
-  const duracao  = parseInt(document.getElementById('sDuracao').value);
-  const desc     = document.getElementById('sDesc').value.trim();
-  const destaque = document.getElementById('sDestaque').checked;
+  const nome      = document.getElementById('sNome').value.trim();
+  const preco     = parseFloat(document.getElementById('sPreco').value);
+  const duracao   = parseInt(document.getElementById('sDuracao').value);
+  const desc      = document.getElementById('sDesc').value.trim();
+  const destaque  = document.getElementById('sDestaque').checked;
+  const categoria = document.getElementById('sCategoria').value;
 
-  if (!nome || !preco || !duracao || !desc) { showToast('⚠️ Preencha todos os campos obrigatórios.'); return; }
+  if (!nome || !preco || !duracao || !desc || !categoria) { showToast('⚠️ Preencha todos os campos obrigatórios.'); return; }
 
   const btn = document.querySelector('#servicoForm .btn-primary');
   btn.disabled = true; btn.textContent = '⏳ Salvando...';
 
   try {
-    const payload = { nome, preco, duracao_min: duracao, descricao: desc, destaque };
+    const payload = { nome, preco, duracao_min: duracao, descricao: desc, destaque, categoria };
     if (editingServicoId) {
       await sbUpdate('servicos', `id=eq.${editingServicoId}`, payload);
       const idx = servicos.findIndex(s => s.id === editingServicoId);
@@ -707,7 +627,7 @@ async function saveServico() {
     renderServicosTable();
     showToast('✅ Serviço salvo!');
   } catch(e) {
-    showToast('❌ ' + e.message, true);
+    showToast('❌ Erro: ' + e.message);
   } finally {
     btn.disabled = false; btn.textContent = '💾 Salvar serviço';
   }
@@ -717,11 +637,12 @@ function editServico(id) {
   const s = servicos.find(s => s.id === id);
   if (!s) return;
   editingServicoId = id;
-  document.getElementById('sNome').value    = s.nome;
-  document.getElementById('sPreco').value   = s.preco;
-  document.getElementById('sDuracao').value = s.duracao_min;
-  document.getElementById('sDesc').value    = s.descricao || '';
+  document.getElementById('sNome').value      = s.nome;
+  document.getElementById('sPreco').value     = s.preco;
+  document.getElementById('sDuracao').value   = s.duracao_min;
+  document.getElementById('sDesc').value      = s.descricao || '';
   document.getElementById('sDestaque').checked = s.destaque || false;
+  document.getElementById('sCategoria').value = s.categoria || '';
   document.querySelector('#servicoForm .btn-primary').textContent = '💾 Atualizar serviço';
   document.getElementById('servicoForm').scrollIntoView({ behavior: 'smooth' });
 }
@@ -733,12 +654,13 @@ async function deleteServico(id) {
     servicos = servicos.filter(s => s.id !== id);
     renderServicosTable();
     showToast('🗑 Serviço removido.');
-  } catch(e) { showToast('❌ ' + e.message, true); }
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
 }
 
 function clearServicoForm() {
   editingServicoId = null;
   ['sNome','sPreco','sDuracao','sDesc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sCategoria').value = '';
   document.getElementById('sDestaque').checked = false;
   document.querySelector('#servicoForm .btn-primary').textContent = '💾 Salvar serviço';
 }
@@ -823,7 +745,7 @@ async function addGaleriaFoto() {
     renderGaleriaGrid();
     showToast('✅ Foto adicionada!');
   } catch(e) {
-    showToast('❌ ' + e.message, true);
+    showToast('❌ Erro: ' + e.message);
   } finally {
     btn.disabled = false; btn.textContent = '📤 Enviar foto';
   }
@@ -836,232 +758,7 @@ async function deleteFoto(id) {
     galeriaFotos = galeriaFotos.filter(f => f.id !== id);
     renderGaleriaGrid();
     showToast('🗑 Foto removida.');
-  } catch(e) { showToast('❌ ' + e.message, true); }
-}
-
-/* ══ CATEGORIAS ════════════════════════════════════ */
-async function loadCategorias() {
-  categorias = await sbGet('categorias_produtos', '', 'ordem');
-  populaCategoriaSelect();
-}
-
-function populaCategoriaSelect() {
-  const sel = document.getElementById('pCategoria');
-  if (!sel) return;
-  const atual = sel.value;
-  sel.innerHTML = categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')
-    || '<option value="">Crie uma categoria primeiro</option>';
-  if (atual) sel.value = atual;
-}
-
-function renderCategoriasTable() {
-  const tbody = document.getElementById('categoriasTable');
-  if (!categorias.length) {
-    tbody.innerHTML = `<tr><td colspan="3"><div class="empty"><div class="empty-icon">🏷️</div>Nenhuma categoria ainda. Crie a primeira acima.</div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = categorias.map(c => {
-    const qtd = produtos.filter(p => p.categoria_id === c.id).length;
-    return `
-    <tr>
-      <td style="font-weight:600">${c.nome}</td>
-      <td style="color:var(--muted)">${qtd} produto${qtd !== 1 ? 's' : ''}</td>
-      <td><div class="td-actions">
-        <button class="btn-icon btn-edit" onclick="editCategoria(${c.id})">✏️ Renomear</button>
-        <button class="btn-icon btn-delete" onclick="deleteCategoria(${c.id})">🗑 Excluir</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-async function saveCategoria() {
-  const nome = document.getElementById('catNome').value.trim();
-  if (!nome) { showToast('⚠️ Digite o nome da categoria.'); return; }
-  try {
-    const [row] = await sbInsert('categorias_produtos', { nome, ativo: true, ordem: categorias.length + 1 });
-    categorias.push(row);
-    document.getElementById('catNome').value = '';
-    renderCategoriasTable();
-    populaCategoriaSelect();
-    showToast('✅ Categoria criada!');
-  } catch(e) { showToast('❌ ' + e.message, true); }
-}
-
-async function editCategoria(id) {
-  const c = categorias.find(c => c.id === id);
-  if (!c) return;
-  const novoNome = prompt('Novo nome da categoria:', c.nome);
-  if (!novoNome || !novoNome.trim() || novoNome.trim() === c.nome) return;
-  try {
-    await sbUpdate('categorias_produtos', `id=eq.${id}`, { nome: novoNome.trim() });
-    c.nome = novoNome.trim();
-    renderCategoriasTable();
-    populaCategoriaSelect();
-    renderProdutosTable();
-    showToast('✅ Categoria atualizada!');
-  } catch(e) { showToast('❌ ' + e.message, true); }
-}
-
-async function deleteCategoria(id) {
-  const qtd = produtos.filter(p => p.categoria_id === id).length;
-  if (qtd > 0) { showToast('⚠️ Mova ou exclua os produtos dessa categoria antes.'); return; }
-  if (!confirm('Excluir esta categoria?')) return;
-  try {
-    await sbDelete('categorias_produtos', `id=eq.${id}`);
-    categorias = categorias.filter(c => c.id !== id);
-    renderCategoriasTable();
-    populaCategoriaSelect();
-    showToast('🗑 Categoria removida.');
-  } catch(e) { showToast('❌ ' + e.message, true); }
-}
-
-/* ══ PRODUTOS ══════════════════════════════════════ */
-async function loadProdutos() {
-  produtos = await sbGet('produtos', '', 'ordem');
-}
-
-function renderProdutosTable() {
-  const tbody = document.getElementById('produtosTable');
-  if (!produtos.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">📦</div>Nenhum produto cadastrado.</div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = produtos.map(p => {
-    const cat = categorias.find(c => c.id === p.categoria_id);
-    return `
-    <tr style="${p.ativo ? '' : 'opacity:.45'}">
-      <td>${p.imagem_url ? `<img class="thumb" src="${p.imagem_url}" alt="${p.nome}">` : '<div class="thumb-empty">📦</div>'}</td>
-      <td style="font-weight:600">${p.nome}${!p.ativo ? ' <span style="font-size:.7rem;color:var(--muted)">(oculto)</span>' : ''}</td>
-      <td style="color:var(--muted)">${cat ? cat.nome : '—'}</td>
-      <td style="color:var(--brass);font-weight:700">R$ ${fmt(p.preco)}</td>
-      <td style="color:${p.estoque > 0 ? 'var(--muted)' : '#f87171'}">${p.estoque > 0 ? p.estoque : 'Esgotado'}</td>
-      <td><div class="td-actions">
-        <button class="btn-icon btn-edit" onclick="editProduto(${p.id})">✏️ Editar</button>
-        <button class="btn-icon btn-delete" onclick="deleteProduto(${p.id})">🗑 Excluir</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-function previewProdutoImg(input) {
-  const file = input.files[0];
-  if (!file) return;
-  selectedProdutoFile = file;
-  const url = URL.createObjectURL(file);
-  document.getElementById('pImgPreview').src = url;
-  document.getElementById('pImgPreviewWrap').style.display = 'block';
-  document.getElementById('pImgLabelText').textContent = file.name;
-}
-
-function clearProdutoImg() {
-  selectedProdutoFile = null;
-  document.getElementById('pImgFile').value = '';
-  document.getElementById('pImgPreview').src = '';
-  document.getElementById('pImgPreviewWrap').style.display = 'none';
-  document.getElementById('pImgLabelText').textContent = 'Escolher imagem';
-}
-
-async function uploadProdutoImg() {
-  if (!selectedProdutoFile) return null;
-  const token = sessionStorage.getItem('barb_token');
-  const ext   = selectedProdutoFile.name.split('.').pop();
-  const path  = `${Date.now()}.${ext}`;
-  const res = await fetch(`${SB_URL}/storage/v1/object/produtos/${path}`, {
-    method: 'POST',
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': `Bearer ${token || SB_KEY}`,
-      'Content-Type': selectedProdutoFile.type,
-      'x-upsert': 'true'
-    },
-    body: selectedProdutoFile
-  });
-  if (!res.ok) throw new Error('Erro no upload da imagem.');
-  return `${SB_URL}/storage/v1/object/public/produtos/${path}`;
-}
-
-async function saveProduto() {
-  const nome        = document.getElementById('pNome').value.trim();
-  const categoriaId = document.getElementById('pCategoria').value;
-  const preco       = parseFloat(document.getElementById('pPreco').value);
-  const precoAntigoRaw = document.getElementById('pPrecoAntigo').value;
-  const precoAntigo = precoAntigoRaw ? parseFloat(precoAntigoRaw) : null;
-  const estoque     = parseInt(document.getElementById('pEstoque').value);
-  const badge       = document.getElementById('pBadge').value || null;
-  const ativo       = document.getElementById('pAtivo').checked;
-
-  if (!nome || !categoriaId || !preco || isNaN(estoque)) { showToast('⚠️ Preencha nome, categoria, preço e estoque.'); return; }
-
-  const btn = document.querySelector('#produtoForm .btn-primary');
-  btn.disabled = true; btn.textContent = '⏳ Salvando...';
-
-  try {
-    let imagemUrl = editingProdutoId ? (produtos.find(p => p.id === editingProdutoId)?.imagem_url || null) : null;
-    if (selectedProdutoFile) imagemUrl = await uploadProdutoImg();
-
-    const payload = {
-      nome, categoria_id: Number(categoriaId), preco,
-      preco_antigo: precoAntigo, estoque, badge, ativo, imagem_url: imagemUrl
-    };
-
-    if (editingProdutoId) {
-      await sbUpdate('produtos', `id=eq.${editingProdutoId}`, payload);
-      const idx = produtos.findIndex(p => p.id === editingProdutoId);
-      if (idx > -1) produtos[idx] = { ...produtos[idx], ...payload };
-      editingProdutoId = null;
-    } else {
-      const [row] = await sbInsert('produtos', { ...payload, ordem: produtos.length + 1 });
-      produtos.push(row);
-    }
-    clearProdutoForm();
-    renderProdutosTable();
-    renderCategoriasTable();
-    showToast('✅ Produto salvo!');
-  } catch(e) {
-    showToast('❌ ' + e.message, true);
-  } finally {
-    btn.disabled = false; btn.textContent = '💾 Salvar produto';
-  }
-}
-
-function editProduto(id) {
-  const p = produtos.find(p => p.id === id);
-  if (!p) return;
-  editingProdutoId = id;
-  document.getElementById('pNome').value = p.nome;
-  document.getElementById('pCategoria').value = p.categoria_id;
-  document.getElementById('pPreco').value = p.preco;
-  document.getElementById('pPrecoAntigo').value = p.preco_antigo || '';
-  document.getElementById('pEstoque').value = p.estoque;
-  document.getElementById('pBadge').value = p.badge || '';
-  document.getElementById('pAtivo').checked = p.ativo;
-  clearProdutoImg();
-  if (p.imagem_url) {
-    document.getElementById('pImgPreview').src = p.imagem_url;
-    document.getElementById('pImgPreviewWrap').style.display = 'block';
-  }
-  document.querySelector('#produtoForm .btn-primary').textContent = '💾 Atualizar produto';
-  document.getElementById('produtoForm').scrollIntoView({ behavior: 'smooth' });
-}
-
-async function deleteProduto(id) {
-  if (!confirm('Excluir este produto?')) return;
-  try {
-    await sbDelete('produtos', `id=eq.${id}`);
-    produtos = produtos.filter(p => p.id !== id);
-    renderProdutosTable();
-    renderCategoriasTable();
-    showToast('🗑 Produto removido.');
-  } catch(e) { showToast('❌ ' + e.message, true); }
-}
-
-function clearProdutoForm() {
-  editingProdutoId = null;
-  ['pNome','pPreco','pPrecoAntigo','pEstoque'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('pBadge').value = '';
-  document.getElementById('pAtivo').checked = true;
-  clearProdutoImg();
-  document.querySelector('#produtoForm .btn-primary').textContent = '💾 Salvar produto';
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
 }
 
 /* ══ AGENDAMENTOS ══════════════════════════════════ */
@@ -1106,7 +803,7 @@ async function updateAgendStatus(id, status) {
   try {
     await sbUpdate('agendamentos', `id=eq.${id}`, { status });
     showToast('✅ Status atualizado!');
-  } catch(e) { showToast('❌ ' + e.message, true); }
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
 }
 
 async function deleteAgend(id) {
@@ -1115,37 +812,20 @@ async function deleteAgend(id) {
     await sbDelete('agendamentos', `id=eq.${id}`);
     renderAgendamentos();
     showToast('🗑 Agendamento removido.');
-  } catch(e) { showToast('❌ ' + e.message, true); }
+  } catch(e) { showToast('❌ Erro: ' + e.message); }
 }
 
 /* ══ UTILS ═════════════════════════════════════════ */
 function fmt(n) { return parseFloat(n).toFixed(2).replace('.', ','); }
 
 let toastTimer;
-function showToast(msg, isError = false) {
+function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.classList.toggle('error', isError);
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 2600);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
-
-// Transforma a resposta de erro do Supabase (JSON bruto) numa frase legível
-function parseSbError(raw) {
-  try {
-    const j = JSON.parse(raw);
-    if (j.message && j.message.includes('row-level security')) {
-      return 'Permissão negada pelo Supabase (política de segurança da tabela). Veja o arquivo supabase-loja.sql.';
-    }
-    return j.message || j.error_description || j.error || raw;
-  } catch {
-    return raw || 'Erro desconhecido.';
-  }
-}
-// Rede de segurança: qualquer erro que escapar dos try/catch também aparece na tela
-window.addEventListener('error', (e) => showToast('❌ ' + (e.message || 'Erro inesperado.'), true));
-window.addEventListener('unhandledrejection', (e) => showToast('❌ ' + (e.reason?.message || e.reason || 'Erro inesperado.'), true));
 </script>
 </body>
 </html>

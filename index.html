@@ -739,6 +739,7 @@
         <p class="section-note">Preços fixos, sem surpresa. Escolha o serviço e garanta seu horário.</p>
       </div>
 
+      <div class="cat-pills" id="servicoCategoriaPills"></div>
       <div class="tickets" id="servicosTickets">
         <p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;">Carregando serviços...</p>
       </div>
@@ -899,35 +900,72 @@
 
   function fmtPreco(n){ return 'R$ ' + parseFloat(n).toFixed(2).replace('.', ','); }
 
-  const SERVICO_ICONS = ['✂️','⚡','🪒','💈','🧴','🪮'];
+  const SERVICO_ICONS = ['✂️','⚡','🪒','💈','🧴','🪮','🔥','💎'];
+  const SERVICO_CATEGORIAS = [
+    'Corte de cabelo','Barba','Combos','Essenciais',
+    'Combos Premium','Tratamento e química','Acabamentos','Universitário'
+  ];
+  let todosServicos = [];
+  let categoriaServicoAtiva = 'Todos';
+
+  function renderServicoPills() {
+    const wrap = document.getElementById('servicoCategoriaPills');
+    const cats = ['Todos', ...SERVICO_CATEGORIAS];
+    wrap.innerHTML = cats.map(c => `
+      <button class="cat-pill ${categoriaServicoAtiva === c ? 'active' : ''}"
+        onclick="filtrarServicos('${c}')">${c}</button>
+    `).join('');
+  }
+
+  function filtrarServicos(cat) {
+    categoriaServicoAtiva = cat;
+    renderServicoPills();
+    renderServicoCards();
+  }
+
+  function renderServicoCards() {
+    const grid = document.getElementById('servicosTickets');
+    const lista = categoriaServicoAtiva === 'Todos'
+      ? todosServicos
+      : todosServicos.filter(s => (s.categoria || '') === categoriaServicoAtiva);
+
+    if (!lista.length) {
+      grid.innerHTML = '<p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;grid-column:1/-1;">Nenhum serviço nessa categoria ainda.</p>';
+      return;
+    }
+
+    grid.innerHTML = lista.map((s, i) => {
+      const icon = SERVICO_ICONS[i % SERVICO_ICONS.length];
+      const inteiro = Math.floor(parseFloat(s.preco));
+      const msg = encodeURIComponent(`Olá! Vim pelo site e tenho interesse no serviço: *${s.nome}* (R$ ${inteiro}). Gostaria de agendar!`);
+      const waLink = `https://wa.me/5589981225667?text=${msg}`;
+      return `
+      <a href="${waLink}" target="_blank" rel="noopener" class="ticket ${s.destaque ? 'featured' : ''} reveal in" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;cursor:pointer;">
+        ${s.destaque ? '<span class="ticket-badge">Mais pedido</span>' : ''}
+        <div class="ticket-icon">${icon}</div>
+        <h3 class="ticket-name">${s.nome}</h3>
+        <p class="ticket-desc">${s.descricao || ''}</p>
+        <hr class="ticket-divider">
+        <div class="ticket-foot">
+          <span class="ticket-price"><sup>R$</sup>${inteiro}</span>
+          <div class="ticket-meta">${s.duracao_min} min<br>por sessão</div>
+        </div>
+      </a>`;
+    }).join('');
+  }
 
   async function carregarServicos() {
     const grid = document.getElementById('servicosTickets');
     try {
       const res = await fetch(`${SB_URL}/rest/v1/servicos?ativo=eq.true&order=ordem`, { headers: SB_HDR });
       if (!res.ok) throw new Error();
-      const data = await res.json();
-      if (!data.length) {
+      todosServicos = await res.json();
+      if (!todosServicos.length) {
         grid.innerHTML = '<p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;">Nenhum serviço cadastrado ainda.</p>';
         return;
       }
-      grid.innerHTML = data.map((s, i) => {
-        const icon = SERVICO_ICONS[i % SERVICO_ICONS.length];
-        const preco = parseFloat(s.preco);
-        const inteiro = Math.floor(preco);
-        return `
-        <div class="ticket ${s.destaque ? 'featured' : ''} reveal in">
-          ${s.destaque ? '<span class="ticket-badge">Mais pedido</span>' : ''}
-          <div class="ticket-icon">${icon}</div>
-          <h3 class="ticket-name">${s.nome}</h3>
-          <p class="ticket-desc">${s.descricao || ''}</p>
-          <hr class="ticket-divider">
-          <div class="ticket-foot">
-            <span class="ticket-price"><sup>R$</sup>${inteiro}</span>
-            <div class="ticket-meta">${s.duracao_min} min<br>por sessão</div>
-          </div>
-        </div>`;
-      }).join('');
+      renderServicoPills();
+      renderServicoCards();
     } catch(e) {
       grid.innerHTML = '<p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;">Erro ao carregar serviços.</p>';
     }
