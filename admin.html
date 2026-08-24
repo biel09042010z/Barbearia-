@@ -712,7 +712,6 @@ function clearGaleriaForm() {
 
 async function uploadGaleriaImg() {
   if (!selectedGaleriaFile) return null;
-  const token = sessionStorage.getItem('barb_token');
   const ext   = selectedGaleriaFile.name.split('.').pop();
   const path  = `${Date.now()}.${ext}`;
 
@@ -720,13 +719,16 @@ async function uploadGaleriaImg() {
     method: 'POST',
     headers: {
       'apikey': SB_KEY,
-      'Authorization': `Bearer ${token || SB_KEY}`,
+      'Authorization': `Bearer ${SB_KEY}`,
       'Content-Type': selectedGaleriaFile.type,
       'x-upsert': 'true'
     },
     body: selectedGaleriaFile
   });
-  if (!res.ok) throw new Error('Erro no upload da imagem.');
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error('Erro no upload da imagem.' + (detail ? ' ' + detail : ''));
+  }
   return `${SB_URL}/storage/v1/object/public/galeria/${path}`;
 }
 
