@@ -770,13 +770,8 @@
         </div>
         <p class="section-note">Uma seleção de trabalhos feitos na cadeira da Invictus.</p>
       </div>
-      <div class="galeria-grid reveal">
-        <div class="g-item"><img src="images/foto-1.jpg" alt="Degradê navalhado" onerror="this.remove()"><div class="g-item-overlay"><span class="g-item-label">Degradê navalhado</span></div></div>
-        <div class="g-item"><img src="images/foto-2.jpg" alt="Barba desenhada" onerror="this.remove()"><div class="g-item-overlay"><span class="g-item-label">Barba desenhada</span></div></div>
-        <div class="g-item"><img src="images/foto-3.jpg" alt="Corte social" onerror="this.remove()"><div class="g-item-overlay"><span class="g-item-label">Corte social</span></div></div>
-        <div class="g-item"><img src="images/foto-4.jpg" alt="Corte infantil" onerror="this.remove()"><div class="g-item-overlay"><span class="g-item-label">Infantil</span></div></div>
-        <div class="g-item"><img src="images/foto-5.jpg" alt="Combo completo" onerror="this.remove()"><div class="g-item-overlay"><span class="g-item-label">Combo completo</span></div></div>
-        <div class="g-item"><img src="images/foto-6.jpg" alt="Acabamento navalha" onerror="this.remove()"><div class="g-item-overlay"><span class="g-item-label">Acabamento navalha</span></div></div>
+      <div class="galeria-grid reveal" id="galeriaGrid">
+        <p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;grid-column:1/-1;">Carregando fotos...</p>
       </div>
 
     </div>
@@ -982,6 +977,24 @@
     renderProdutosGrid();
   }
 
+  async function carregarGaleria() {
+    const grid = document.getElementById('galeriaGrid');
+    try {
+      const res = await fetch(`${SB_URL}/rest/v1/galeria?order=ordem`, { headers: SB_HDR });
+      if (!res.ok) throw new Error();
+      const fotos = await res.json();
+      if (!fotos.length) {
+        grid.innerHTML = '<p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;grid-column:1/-1;">Em breve, fotos dos nossos cortes.</p>';
+        return;
+      }
+      grid.innerHTML = fotos.map(f => `
+        <div class="g-item"><img src="${f.imagem_url}" alt="${f.alt || f.label || 'Foto da barbearia'}" onerror="this.closest('.g-item').remove()"></div>
+      `).join('');
+    } catch(e) {
+      grid.innerHTML = '<p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;grid-column:1/-1;">Em breve, fotos dos nossos cortes.</p>';
+    }
+  }
+
   function renderCategoriaPills() {
     const wrap = document.getElementById('lojaCategoriaPills');
     if (!lojaCategorias.length) { wrap.innerHTML = ''; return; }
@@ -1176,6 +1189,7 @@
   renderCarrinho();
   carregarServicos();
   carregarLoja();
+  carregarGaleria();
 </script>
 
 </body>
