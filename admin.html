@@ -592,8 +592,8 @@ function renderServicosTable() {
       <td style="color:var(--muted)">${s.duracao_min} min</td>
       <td>${s.destaque ? '⭐' : '—'}</td>
       <td><div class="td-actions">
-        <button class="btn-icon btn-edit" onclick="editServico('${s.id}')">✏️ Editar</button>
-        <button class="btn-icon btn-delete" onclick="deleteServico('${s.id}')">🗑 Excluir</button>
+        <button class="btn-icon btn-edit" onclick="editServico(${JSON.stringify(s.id)})">✏️ Editar</button>
+        <button class="btn-icon btn-delete" onclick="deleteServico(${JSON.stringify(s.id)})">🗑 Excluir</button>
       </div></td>
     </tr>
   `).join('');
