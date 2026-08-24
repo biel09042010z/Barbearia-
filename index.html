@@ -394,10 +394,10 @@
   }
   .ticket{
     background:var(--bg-card); border:1px solid var(--line-bright);
-    border-radius:var(--radius); padding:2.4rem 2.2rem 2rem;
+    border-radius:var(--radius); padding:1.6rem 1.6rem 1.4rem;
     position:relative; overflow:hidden;
     transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
-    display:flex; flex-direction:column; min-height:320px;
+    display:flex; flex-direction:column; min-height:240px;
   }
   .ticket::before{
     content:''; position:absolute; top:0; left:0; right:0; height:2px;
@@ -419,23 +419,23 @@
     padding:4px 10px; border-radius:50px; font-weight:700;
   }
 
-  .ticket-icon{ font-size:2rem; margin-bottom:1.2rem; }
+  .ticket-icon{ font-size:1.5rem; margin-bottom:0.8rem; }
   .ticket-name{
-    font-family:var(--display); font-size:1.8rem; font-weight:600;
+    font-family:var(--display); font-size:1.4rem; font-weight:600;
     line-height:1.1;
   }
   .ticket-desc{
-    color:var(--ink-dim); font-size:0.92rem; margin-top:0.7rem;
-    flex-grow:1; line-height:1.6;
+    color:var(--ink-dim); font-size:0.84rem; margin-top:0.5rem;
+    flex-grow:1; line-height:1.55;
   }
 
   .ticket-divider{
     border:none; border-top:1px dashed var(--line-bright);
-    margin:1.6rem 0;
+    margin:1rem 0;
   }
   .ticket-foot{ display:flex; align-items:flex-end; justify-content:space-between; }
   .ticket-price{
-    font-family:var(--display); font-size:2.4rem;
+    font-family:var(--display); font-size:1.9rem;
     color:var(--brass-bright); font-weight:600; line-height:1;
   }
   .ticket-price sup{ font-size:1rem; color:var(--ink-faint); font-family:var(--mono); }
@@ -740,39 +740,7 @@
       </div>
 
       <div class="tickets" id="servicosTickets">
-        <div class="ticket reveal">
-          <div class="ticket-icon">✂️</div>
-          <h3 class="ticket-name">Corte</h3>
-          <p class="ticket-desc">Corte moderno personalizado, com acabamento na navalha e finalização completa.</p>
-          <hr class="ticket-divider">
-          <div class="ticket-foot">
-            <span class="ticket-price"><sup>R$</sup>35</span>
-            <div class="ticket-meta">40 min<br>por sessão</div>
-          </div>
-        </div>
-
-        <div class="ticket featured reveal">
-          <span class="ticket-badge">Mais pedido</span>
-          <div class="ticket-icon">⚡</div>
-          <h3 class="ticket-name">Combo Completo</h3>
-          <p class="ticket-desc">Corte + barba desenhada na toalha quente. O pacote mais pedido da casa.</p>
-          <hr class="ticket-divider">
-          <div class="ticket-foot">
-            <span class="ticket-price"><sup>R$</sup>50</span>
-            <div class="ticket-meta">70 min<br>por sessão</div>
-          </div>
-        </div>
-
-        <div class="ticket reveal">
-          <div class="ticket-icon">🪒</div>
-          <h3 class="ticket-name">Barba</h3>
-          <p class="ticket-desc">Alinhamento e desenho de barba com toalha quente e produtos de acabamento.</p>
-          <hr class="ticket-divider">
-          <div class="ticket-foot">
-            <span class="ticket-price"><sup>R$</sup>20</span>
-            <div class="ticket-meta">30 min<br>por sessão</div>
-          </div>
-        </div>
+        <p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;">Carregando serviços...</p>
       </div>
     </div>
   </section>
@@ -930,6 +898,40 @@
   let carrinho = JSON.parse(localStorage.getItem('invictus_carrinho') || '[]');
 
   function fmtPreco(n){ return 'R$ ' + parseFloat(n).toFixed(2).replace('.', ','); }
+
+  const SERVICO_ICONS = ['✂️','⚡','🪒','💈','🧴','🪮'];
+
+  async function carregarServicos() {
+    const grid = document.getElementById('servicosTickets');
+    try {
+      const res = await fetch(`${SB_URL}/rest/v1/servicos?ativo=eq.true&order=ordem`, { headers: SB_HDR });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (!data.length) {
+        grid.innerHTML = '<p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;">Nenhum serviço cadastrado ainda.</p>';
+        return;
+      }
+      grid.innerHTML = data.map((s, i) => {
+        const icon = SERVICO_ICONS[i % SERVICO_ICONS.length];
+        const preco = parseFloat(s.preco);
+        const inteiro = Math.floor(preco);
+        return `
+        <div class="ticket ${s.destaque ? 'featured' : ''} reveal in">
+          ${s.destaque ? '<span class="ticket-badge">Mais pedido</span>' : ''}
+          <div class="ticket-icon">${icon}</div>
+          <h3 class="ticket-name">${s.nome}</h3>
+          <p class="ticket-desc">${s.descricao || ''}</p>
+          <hr class="ticket-divider">
+          <div class="ticket-foot">
+            <span class="ticket-price"><sup>R$</sup>${inteiro}</span>
+            <div class="ticket-meta">${s.duracao_min} min<br>por sessão</div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      grid.innerHTML = '<p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;">Erro ao carregar serviços.</p>';
+    }
+  }
 
   async function carregarLoja() {
     try {
@@ -1138,6 +1140,7 @@
 
   salvarCarrinho();
   renderCarrinho();
+  carregarServicos();
   carregarLoja();
 </script>
 
