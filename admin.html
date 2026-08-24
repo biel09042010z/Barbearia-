@@ -679,7 +679,7 @@ function renderGaleriaGrid() {
   }
   grid.innerHTML = galeriaFotos.map(f => `
     <div class="galeria-item">
-      <img src="${f.url}" alt="${f.alt || f.label || 'Foto'}" onerror="this.style.opacity='.3'" />
+      <img src="${f.imagem_url}" alt="${f.alt || f.label || 'Foto'}" onerror="this.style.opacity='.3'" />
       <div class="galeria-item-label">${f.label || '—'}</div>
       <button class="galeria-item-del" onclick="deleteFoto(${f.id})" title="Remover foto">✕</button>
     </div>
@@ -738,10 +738,10 @@ async function addGaleriaFoto() {
   btn.disabled = true; btn.textContent = '⏳ Enviando...';
 
   try {
-    const url   = await uploadGaleriaImg();
+    const imagem_url = await uploadGaleriaImg();
     const label = document.getElementById('gLabel').value.trim() || null;
     const alt   = document.getElementById('gAlt').value.trim() || label || 'Foto da barbearia';
-    const [row] = await sbInsert('galeria', { url, label, alt, ordem: galeriaFotos.length + 1 });
+    const [row] = await sbInsert('galeria', { imagem_url, label, alt, ordem: galeriaFotos.length + 1 });
     galeriaFotos.push(row);
     clearGaleriaForm();
     renderGaleriaGrid();
