@@ -1032,7 +1032,7 @@
         <div class="product-photo">
           ${badgeLabel ? `<span class="product-badge ${badgeClass}">${badgeLabel}</span>` : ''}
           ${esgotado ? `<div class="product-out-overlay">Esgotado</div>` : ''}
-          ${p.imagem_url ? `<img src="${p.imagem_url}" alt="${p.nome}">` : `<div class="icon-fallback">🧴</div>`}
+          ${p.imagem_url ? `<img src="${p.imagem_url}" alt="${p.nome}" loading="lazy">` : `<div class="icon-fallback">🧴</div>`}
         </div>
         <div class="product-body">
           <div class="product-name">${p.nome}</div>
