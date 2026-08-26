@@ -964,12 +964,9 @@
 
   async function carregarLoja() {
     try {
-      const [catsRes, prodsRes] = await Promise.all([
-        fetch(`${SB_URL}/rest/v1/categorias_produtos?ativo=eq.true&order=ordem`, { headers: SB_HDR }),
-        fetch(`${SB_URL}/rest/v1/produtos?ativo=eq.true&order=ordem`, { headers: SB_HDR })
-      ]);
-      lojaCategorias = catsRes.ok ? await catsRes.json() : [];
+      const prodsRes = await fetch(`${SB_URL}/rest/v1/produtos?ativo=eq.true&order=ordem`, { headers: SB_HDR });
       lojaProdutos = prodsRes.ok ? await prodsRes.json() : [];
+      lojaCategorias = [];
     } catch(e) {
       lojaCategorias = []; lojaProdutos = [];
     }
@@ -988,7 +985,7 @@
         return;
       }
       grid.innerHTML = fotos.map(f => `
-        <div class="g-item"><img src="${f.imagem_url}" alt="${f.alt || f.label || 'Foto da barbearia'}" onerror="this.closest('.g-item').remove()"></div>
+        <div class="g-item"><img src="${f.url || f.imagem_url}" alt="${f.alt || f.label || 'Foto da barbearia'}" onerror="this.closest('.g-item').remove()"></div>
       `).join('');
     } catch(e) {
       grid.innerHTML = '<p style="color:var(--ink-faint);font-family:var(--mono);font-size:0.85rem;grid-column:1/-1;">Em breve, fotos dos nossos cortes.</p>';
