@@ -889,7 +889,11 @@
   let categoriaAtiva = 'todas';
   let carrinho = JSON.parse(localStorage.getItem('invictus_carrinho') || '[]');
 
-  function fmtPreco(n){ return 'R$ ' + parseFloat(n).toFixed(2).replace('.', ','); }
+  function fmtPreco(n){ 
+    const v = parseFloat(n);
+    if (isNaN(v) || n === null || n === undefined) return 'Consulte';
+    return 'R$ ' + v.toFixed(2).replace('.', ','); 
+  }
 
   const SERVICO_ICONS = ['✂️','⚡','🪒','💈','🧴','🪮','🔥','💎'];
   const SERVICO_CATEGORIAS = [
@@ -1034,7 +1038,7 @@
           <div class="product-name">${p.nome}</div>
           <div class="product-price-row">
             ${p.preco_antigo ? `<span class="product-price-old">${fmtPreco(p.preco_antigo)}</span>` : ''}
-            <span class="product-price">${fmtPreco(p.preco)}</span>
+            ${(p.preco !== null && p.preco !== undefined) ? `<span class="product-price">${fmtPreco(p.preco)}</span>` : ''}
           </div>
           <button class="product-add" data-id="${p.id}" ${esgotado ? 'disabled' : ''}>${esgotado ? 'Esgotado' : 'Adicionar ao carrinho'}</button>
         </div>
